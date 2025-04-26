@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { ConfigurationIndexManager } from './configIndex';
 import { PropertyNavigator } from './propertyNavigator';
 import { PropertyDiagnosticProvider } from './diagnosticProvider';
+import { PropertyHoverProvider } from './navigation/propertyHoverProvider';
 
 /**
  * 激活扩展
@@ -28,36 +29,42 @@ export async function activate(context: vscode.ExtensionContext) {
         const diagnosticProvider = new PropertyDiagnosticProvider(indexManager);
         diagnosticProvider.register(context);
         
-        // 注册相关命令
+        // 创建属性悬停提供者
+        const hoverProvider = new PropertyHoverProvider(indexManager);
+        
+        // 注册属性悬停提供者
         context.subscriptions.push(
-            vscode.commands.registerCommand('java-properties-definition.rebuildIndex', async () => {
-                outputChannel.appendLine('正在重建配置文件索引...');
-                await indexManager.rebuildIndex();
-                outputChannel.appendLine('配置文件索引重建完成');
-                
-                vscode.window.showInformationMessage('配置文件索引已重建');
-            })
+            vscode.languages.registerHoverProvider('java', hoverProvider)
         );
         
-        // 注册打开文件命令
+        // 注册打开位置命令
         context.subscriptions.push(
-            vscode.commands.registerCommand('java-properties-definition.openFile', async (encodedFilePath: string, encodedLine: string) => {
+            vscode.commands.registerCommand('java-properties-definition.openLocation', async (args) => {
                 try {
-                    const filePath = decodeURIComponent(encodedFilePath);
-                    const line = parseInt(decodeURIComponent(encodedLine), 10);
+                    if (!args) return;
                     
-                    const uri = vscode.Uri.file(filePath);
-                    const document = await vscode.workspace.openTextDocument(uri);
-                    const lineIndex = Math.max(0, line - 1); // 转换为0基的行号
+                    let params: { filePath: string; line: number };
                     
-                    // 创建一个范围，高亮整行
+                    if (typeof args === 'string') {
+                        params = JSON.parse(args);
+                    } else {
+                        params = args;
+                    }
+                    
+                    const { filePath, line } = params;
+                    
+                    // 打开文件并跳转到指定行
+                    const document = await vscode.workspace.openTextDocument(filePath);
+                    const lineToShow = Math.max(0, line - 1); // 转换为0基的行号
+                    
+                    // 创建一个范围，定位到整行
                     const range = new vscode.Range(
-                        new vscode.Position(lineIndex, 0),
-                        new vscode.Position(lineIndex, document.lineAt(lineIndex).text.length)
+                        new vscode.Position(lineToShow, 0),
+                        new vscode.Position(lineToShow, document.lineAt(lineToShow).text.length)
                     );
                     
-                    // 打开文档并显示行
-                    await vscode.window.showTextDocument(document, { 
+                    // 打开文档并显示对应行
+                    await vscode.window.showTextDocument(document, {
                         selection: range,
                         preserveFocus: false,
                         preview: false
@@ -79,9 +86,20 @@ export async function activate(context: vscode.ExtensionContext) {
                         }, 3000);
                     }
                 } catch (error) {
-                    console.error('打开文件时出错:', error);
-                    vscode.window.showErrorMessage(`无法打开文件: ${error}`);
+                    console.error('打开配置键位置时出错:', error);
+                    vscode.window.showErrorMessage('无法打开配置键位置');
                 }
+            })
+        );
+        
+        // 注册相关命令
+        context.subscriptions.push(
+            vscode.commands.registerCommand('java-properties-definition.rebuildIndex', async () => {
+                outputChannel.appendLine('正在重建配置文件索引...');
+                await indexManager.rebuildIndex();
+                outputChannel.appendLine('配置文件索引重建完成');
+                
+                vscode.window.showInformationMessage('配置文件索引已重建');
             })
         );
         

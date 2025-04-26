@@ -31,10 +31,6 @@
       {
         "command": "java-properties-definition.findUsages",
         "title": "Find Property Usages"
-      },
-      {
-        "command": "java-properties-definition.openFile",
-        "title": "Open Property File"
       }
     ],
     "configuration": {
