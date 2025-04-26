@@ -206,14 +206,17 @@ export class JavaStringAnalyzer {
      * 配置键通常是用点分隔的小写字母、数字和连字符
      */
     private static isLikelyConfigKey(str: string): boolean {
-        // 配置键应该至少包含一个点
-        if (!str.includes('.')) {
-            return false;
+        // 单个单词也可以是配置键，不再要求必须包含点
+        // 如果包含点，按点分隔的模式判断
+        if (str.includes('.')) {
+            // 常见的配置键模式：小写字母、数字、连字符，用点分隔
+            const configKeyPattern = /^[a-z0-9]+([-.]?[a-z0-9]+)*(\.[a-z0-9]+([-.]?[a-z0-9]+)*)*$/;
+            return configKeyPattern.test(str);
         }
         
-        // 常见的配置键模式：小写字母、数字、连字符，用点分隔
-        const configKeyPattern = /^[a-z0-9]+([-.]?[a-z0-9]+)*(\.[a-z0-9]+([-.]?[a-z0-9]+)*)*$/;
-        return configKeyPattern.test(str);
+        // 对于单个单词，检查是否符合标识符格式（字母、数字、下划线，不能以数字开头）
+        const singleWordPattern = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
+        return singleWordPattern.test(str);
     }
     
     /**

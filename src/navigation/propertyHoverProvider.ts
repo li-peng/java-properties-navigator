@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import { ConfigurationIndexManager, PropertyLocation } from '../configIndex';
-import { JavaStringAnalyzer } from '../javaStringAnalyzer';
+import { JavaStringAnalyzer } from '../analyzer/javaStringAnalyzer';
 
 /**
  * 属性悬停提供者
@@ -29,8 +29,29 @@ export class PropertyHoverProvider implements vscode.HoverProvider {
                 return undefined;
             }
             
-            // 分析当前位置的字符串，检查是否是配置键
-            const propertyKey = await JavaStringAnalyzer.analyzeStringAtPosition(document, position);
+            let propertyKey: string | undefined;
+            
+            // 先检查是否有选中文本
+            const editor = vscode.window.activeTextEditor;
+            const selection = editor?.selection;
+            
+            if (editor && selection && !selection.isEmpty && 
+                editor.document.uri.toString() === document.uri.toString() && 
+                selection.contains(position)) {
+                // 获取选中的文本
+                const selectedText = document.getText(selection);
+                
+                // 验证选中文本是否是有效的Java字符串
+                if (await this.isValidJavaString(document, selection, selectedText)) {
+                    propertyKey = selectedText;
+                } else {
+                    // 如果不是有效的Java字符串，返回undefined
+                    return undefined;
+                }
+            } else {
+                // 否则使用高级版本的字符串分析
+                propertyKey = await JavaStringAnalyzer.analyzeStringAtPosition(document, position);
+            }
             
             if (!propertyKey || !this.indexManager.hasProperty(propertyKey)) {
                 return undefined;
@@ -59,6 +80,41 @@ export class PropertyHoverProvider implements vscode.HoverProvider {
         } catch (error) {
             console.error('提供配置键悬停时出错:', error);
             return undefined;
+        }
+    }
+    
+    /**
+     * 验证选中文本是否是有效的Java字符串
+     * 检查1：确保选中的文本是完整的Java字符串
+     * 检查2：确保选中的文本不在注释中
+     * 检查3：确保选中的文本不是变量名
+     */
+    private async isValidJavaString(
+        document: vscode.TextDocument, 
+        selection: vscode.Selection, 
+        selectedText: string
+    ): Promise<boolean> {
+        try {
+            // 计算选区中间点位置
+            const midLine = Math.floor((selection.start.line + selection.end.line) / 2);
+            const midChar = selection.start.line === selection.end.line ? 
+                Math.floor((selection.start.character + selection.end.character) / 2) : 
+                Math.floor(document.lineAt(midLine).text.length / 2);
+            const midPosition = new vscode.Position(midLine, midChar);
+            
+            // 使用JavaStringAnalyzer检查中间点位置的字符串
+            const detectedString = await JavaStringAnalyzer.analyzeStringAtPosition(document, midPosition);
+            
+            // 如果没有检测到字符串，则选中的文本不是有效的Java字符串
+            if (!detectedString) {
+                return false;
+            }
+            
+            // 检查选中的文本是否与检测到的字符串完全匹配
+            return detectedString === selectedText;
+        } catch (error) {
+            console.error('验证Java字符串时出错:', error);
+            return false;
         }
     }
     
