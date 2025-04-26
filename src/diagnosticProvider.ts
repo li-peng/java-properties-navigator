@@ -91,8 +91,24 @@ export class PropertyDiagnosticProvider {
                 // 检查是否是配置键
                 const isConfigKey = await this.isConfigKeyInContext(document, position, key);
                 
-                // 不再为未匹配到的配置键创建警告
-                // 当未匹配到配置键时，不做任何操作
+                if (isConfigKey && !this.indexManager.hasProperty(key)) {
+                    // 创建诊断信息
+                    const range = new vscode.Range(
+                        i, match.index + 1, // 开始位置（跳过引号）
+                        i, match.index + key.length + 1 // 结束位置
+                    );
+                    
+                    const diagnostic = new vscode.Diagnostic(
+                        range,
+                        `未定义的配置键: "${key}"`,
+                        vscode.DiagnosticSeverity.Warning
+                    );
+                    
+                    diagnostic.source = 'java-properties-definition';
+                    diagnostic.code = 'undefined-key';
+                    
+                    diagnostics.push(diagnostic);
+                }
             }
         }
         
