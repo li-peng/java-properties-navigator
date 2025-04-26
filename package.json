@@ -21,12 +21,20 @@
         "title": "Jump to Property"
       },
       {
+        "command": "java-properties-definition.jumpToPropertyShortcut",
+        "title": "Jump to Property (Shortcut)"
+      },
+      {
         "command": "java-properties-definition.rebuildIndex",
         "title": "Rebuild Properties Index"
       },
       {
         "command": "java-properties-definition.findUsages",
         "title": "Find Property Usages"
+      },
+      {
+        "command": "java-properties-definition.openFile",
+        "title": "Open Property File"
       }
     ],
     "configuration": {
@@ -82,9 +90,9 @@
     },
     "keybindings": [
       {
-        "command": "java-properties-definition.jumpToProperty",
-        "key": "alt+j",
-        "mac": "cmd+j",
+        "command": "java-properties-definition.jumpToPropertyShortcut",
+        "key": "alt+p",
+        "mac": "cmd+p",
         "when": "editorLangId == java"
       }
     ]
@@ -97,7 +105,9 @@
     "test": "node ./out/test/runTest.js"
   },
   "dependencies": {
-    "js-yaml": "^4.1.0"
+    "@vscode/debugadapter": "^1.66.0",
+    "@vscode/debugprotocol": "^1.66.0",
+    "yaml": "^2.4.5"
   },
   "devDependencies": {
     "@types/glob": "^7.1.3",

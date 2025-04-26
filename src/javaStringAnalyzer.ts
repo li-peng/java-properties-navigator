@@ -70,9 +70,17 @@ export class JavaStringAnalyzer {
         }
         
         // 检查字符串上下文，判断是否可能是配置键
-        const isConfigKey = await this.isPossibleConfigKey(document, position, propertyKey);
+        // 对于直接通过命令/快捷键触发的跳转，我们应该尽量信任用户的选择
+        const isCommandTriggered = vscode.window.activeTextEditor && selection && !selection.isEmpty;
         
-        return isConfigKey ? propertyKey : undefined;
+        if (isCommandTriggered) {
+            // 如果是通过命令或快捷键触发，且有文本选中，则直接认为是配置键
+            return propertyKey;
+        } else {
+            // 否则进行上下文分析
+            const isConfigKey = await this.isPossibleConfigKey(document, position, propertyKey);
+            return isConfigKey ? propertyKey : undefined;
+        }
     }
     
     /**
@@ -140,8 +148,8 @@ export class JavaStringAnalyzer {
             }
         }
         
-        // 如果当前字符串看起来像配置键（包含点号分隔符），也认为是可能的配置键
-        if (/^[a-zA-Z0-9]+(\.[a-zA-Z0-9]+)+$/.test(key)) {
+        // 如果当前字符串看起来像配置键（包含点号分隔符或是单个合法标识符），认为是可能的配置键
+        if (/^[a-zA-Z0-9_]+(\.[a-zA-Z0-9_]+)*$/.test(key)) {
             return true;
         }
         

@@ -1484,8 +1484,8 @@ Read file: src/configIndex.ts
 +     "keybindings": [
 +       {
 +         "command": "java-properties-definition.jumpToProperty",
-+         "key": "alt+j",
-+         "mac": "cmd+j",
++         "key": "Alt+P",
++         "mac": "Cmd+P",
 +         "when": "editorLangId == java"
 +       }
 +     ]
@@ -1524,7 +1524,7 @@ Read file: src/configIndex.ts
 + ### 3. 跳转交互功能
 + 
 + - 在字符串上点击右键菜单项 "Jump to Property" 跳转到属性定义
-+ - 支持快捷键跳转：Windows/Linux (Alt+J)，macOS (Cmd+J)
++ - 支持快捷键跳转：Windows/Linux (Alt+P)，macOS (Cmd+P)
 + - 如果属性存在于多个配置文件中，会显示选择对话框
 + 
 + ### 4. 高级特性
@@ -8494,7 +8494,7 @@ _**Assistant**_
 2. 打开一个Java文件，查找代码中使用的配置项（如`getProperty("db.url")`）
 3. 尝试使用您实现的"Jump to Property"功能：
    - 选中属性键（例如"db.url"）
-   - 右键点击并选择"Jump to Property"，或使用快捷键Alt+J（Windows）或Cmd+J（Mac）
+   - 右键点击并选择"Jump to Property"，或使用快捷键Alt+P（Windows）或Cmd+P（Mac）
 4. 确认扩展能正确跳转到对应的配置文件中定义该属性的位置
 
 另外，测试其他功能：

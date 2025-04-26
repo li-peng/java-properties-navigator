@@ -39,6 +39,52 @@ export async function activate(context: vscode.ExtensionContext) {
             })
         );
         
+        // 注册打开文件命令
+        context.subscriptions.push(
+            vscode.commands.registerCommand('java-properties-definition.openFile', async (encodedFilePath: string, encodedLine: string) => {
+                try {
+                    const filePath = decodeURIComponent(encodedFilePath);
+                    const line = parseInt(decodeURIComponent(encodedLine), 10);
+                    
+                    const uri = vscode.Uri.file(filePath);
+                    const document = await vscode.workspace.openTextDocument(uri);
+                    const lineIndex = Math.max(0, line - 1); // 转换为0基的行号
+                    
+                    // 创建一个范围，高亮整行
+                    const range = new vscode.Range(
+                        new vscode.Position(lineIndex, 0),
+                        new vscode.Position(lineIndex, document.lineAt(lineIndex).text.length)
+                    );
+                    
+                    // 打开文档并显示行
+                    await vscode.window.showTextDocument(document, { 
+                        selection: range,
+                        preserveFocus: false,
+                        preview: false
+                    });
+                    
+                    // 添加装饰效果突出显示
+                    const decorationType = vscode.window.createTextEditorDecorationType({
+                        backgroundColor: new vscode.ThemeColor('editor.findMatchHighlightBackground'),
+                        isWholeLine: true
+                    });
+                    
+                    const editor = vscode.window.activeTextEditor;
+                    if (editor) {
+                        editor.setDecorations(decorationType, [range]);
+                        
+                        // 几秒后清除装饰
+                        setTimeout(() => {
+                            decorationType.dispose();
+                        }, 3000);
+                    }
+                } catch (error) {
+                    console.error('打开文件时出错:', error);
+                    vscode.window.showErrorMessage(`无法打开文件: ${error}`);
+                }
+            })
+        );
+        
         // 注册资源释放
         context.subscriptions.push({
             dispose: () => {

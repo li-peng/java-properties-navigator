@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import * as fs from 'fs';
 import { ConfigurationIndexManager, PropertyLocation } from './configIndex';
 import { JavaStringAnalyzer } from './javaStringAnalyzer';
 
@@ -8,6 +9,7 @@ import { JavaStringAnalyzer } from './javaStringAnalyzer';
  */
 export class PropertyNavigator {
     private indexManager: ConfigurationIndexManager;
+    private currentHoverKey: string | undefined;
     
     constructor(indexManager: ConfigurationIndexManager) {
         this.indexManager = indexManager;
@@ -20,6 +22,35 @@ export class PropertyNavigator {
         // 注册跳转命令
         context.subscriptions.push(
             vscode.commands.registerCommand('java-properties-definition.jumpToProperty', async () => {
+                await this.jumpToPropertyDefinition();
+            })
+        );
+        
+        // 注册一个专门用于键盘快捷键的命令
+        context.subscriptions.push(
+            vscode.commands.registerTextEditorCommand('java-properties-definition.jumpToPropertyShortcut', async (editor) => {
+                // 如果有选中文本，直接使用选中的文本作为配置键
+                if (editor.selection && !editor.selection.isEmpty) {
+                    const key = editor.document.getText(editor.selection);
+                    if (key) {
+                        const locations = this.indexManager.findPropertyLocations(key);
+                        if (locations.length === 0) {
+                            vscode.window.showWarningMessage(`未找到配置键 "${key}" 的定义。`);
+                            return;
+                        }
+                        
+                        // 如果只有一个位置，直接跳转
+                        if (locations.length === 1) {
+                            await this.openPropertyLocation(locations[0]);
+                        } else {
+                            // 如果有多个位置，显示选择对话框
+                            await this.showLocationPicker(locations);
+                        }
+                        return;
+                    }
+                }
+                
+                // 如果没有选中文本，则调用标准的跳转方法
                 await this.jumpToPropertyDefinition();
             })
         );
@@ -39,6 +70,79 @@ export class PropertyNavigator {
                 }
             })
         );
+        
+        // 注册悬停提供器，显示属性值
+        context.subscriptions.push(
+            vscode.languages.registerHoverProvider('java', {
+                provideHover: async (document, position, token) => {
+                    return await this.provideHover(document, position, token);
+                }
+            })
+        );
+    }
+    
+    /**
+     * 提供悬停信息
+     */
+    private async provideHover(
+        document: vscode.TextDocument, 
+        position: vscode.Position,
+        token: vscode.CancellationToken
+    ): Promise<vscode.Hover | undefined> {
+        // 获取当前位置的字符串
+        const key = await JavaStringAnalyzer.analyzeStringAtPosition(document, position);
+        if (!key || !this.indexManager.hasProperty(key)) {
+            return undefined;
+        }
+        
+        // 查找配置键的位置
+        const locations = this.indexManager.findPropertyLocations(key);
+        if (locations.length === 0) {
+            return undefined;
+        }
+        
+        this.currentHoverKey = key;
+        
+        // 创建悬停内容
+        const contents: vscode.MarkdownString[] = [];
+        
+        // 如果有多个位置
+        if (locations.length > 1) {
+            const valuesMd = new vscode.MarkdownString();
+            valuesMd.isTrusted = true;
+            valuesMd.supportHtml = true;
+            
+            for (const location of locations) {
+                const environmentText = location.environment ? `[${location.environment}] ` : '';
+                const linePreview = this.getLinePreview(location);
+                
+                // 添加链接，点击可以跳转到对应的文件
+                const encodedFilePath = encodeURIComponent(location.filePath);
+                const encodedLine = encodeURIComponent(location.line);
+                
+                valuesMd.appendMarkdown(`* ${environmentText}[${linePreview}](command:java-properties-definition.openFile?${encodeURIComponent(JSON.stringify([encodedFilePath, encodedLine]))})\n\n`);
+            }
+            
+            contents.push(valuesMd);
+        } else {
+            // 只有一个位置时，只显示值
+            const location = locations[0];
+            const linePreview = this.getLinePreview(location);
+            
+            const valueMd = new vscode.MarkdownString();
+            valueMd.isTrusted = true;
+            valueMd.supportHtml = true;
+            
+            // 添加链接，点击可以跳转到对应的文件
+            const encodedFilePath = encodeURIComponent(location.filePath);
+            const encodedLine = encodeURIComponent(location.line);
+            
+            valueMd.appendMarkdown(`[${linePreview}](command:java-properties-definition.openFile?${encodeURIComponent(JSON.stringify([encodedFilePath, encodedLine]))})`);
+            
+            contents.push(valueMd);
+        }
+        
+        return new vscode.Hover(contents);
     }
     
     /**
@@ -72,8 +176,9 @@ export class PropertyNavigator {
             return;
         }
         
-        // 获取当前位置
+        // 获取当前位置和选择区域
         const position = editor.selection.active;
+        const selection = editor.selection;
         
         // 尝试分析当前位置的字符串
         const key = await JavaStringAnalyzer.analyzeStringAtPosition(editor.document, position);
@@ -178,7 +283,7 @@ export class PropertyNavigator {
      */
     private getLinePreview(location: PropertyLocation): string {
         try {
-            const content = require('fs').readFileSync(location.filePath, 'utf8');
+            const content = fs.readFileSync(location.filePath, 'utf8');
             const lines = content.split(/\r?\n/);
             if (location.line > 0 && location.line <= lines.length) {
                 return lines[location.line - 1].trim(); // 行号从1开始，数组索引从0开始

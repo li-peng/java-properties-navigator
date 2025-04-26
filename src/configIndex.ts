@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
-import { ConfigReader } from './reader/configReader';
+import { ConfigReader, ConfigItem } from './reader/configReader';
+import { parseYaml } from './yamlParser';
 
 /**
  * 用于存储属性键位置的结构
@@ -199,17 +200,25 @@ export class ConfigurationIndexManager {
     private async scanFile(filePath: string): Promise<void> {
         try {
             const content = fs.readFileSync(filePath, 'utf8');
+            const fileUri = vscode.Uri.file(filePath);
             const filename = path.basename(filePath);
+            const fileExtension = path.extname(filePath);
             
-            // 尝试从文件名提取环境信息，例如 application-dev.properties
+            // 尝试从文件名提取环境信息
             let environment: string | undefined = undefined;
             const match = filename.match(/.*-([^.]+)\.(properties|ya?ml)/);
             if (match && match[1]) {
                 environment = match[1];
             }
-            
-            // 使用ConfigReader解析配置文件
-            const configItems = ConfigReader.parseConfig(content, filePath);
+
+            let configItems: ConfigItem[] = [];
+
+            // 根据文件类型选择解析器
+            if (fileExtension === '.properties') {
+                configItems = ConfigReader.parseConfig(content, filePath);
+            } else if (fileExtension === '.yml' || fileExtension === '.yaml') {
+                configItems = parseYaml(content, fileUri);
+            }
             
             // 添加解析到的配置项到索引
             for (const item of configItems) {
