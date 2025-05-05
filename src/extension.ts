@@ -26,8 +26,8 @@ export async function activate(context: vscode.ExtensionContext) {
         propertyNavigator.registerCommands(context);
         
         // 创建诊断提供程序
-        const diagnosticProvider = new PropertyDiagnosticProvider(indexManager);
-        diagnosticProvider.register(context);
+        // const diagnosticProvider = new PropertyDiagnosticProvider(indexManager);
+        // diagnosticProvider.register(context);
         
         // 创建属性悬停提供者
         const hoverProvider = new PropertyHoverProvider(indexManager);
@@ -107,7 +107,7 @@ export async function activate(context: vscode.ExtensionContext) {
         context.subscriptions.push({
             dispose: () => {
                 indexManager.dispose();
-                diagnosticProvider.dispose();
+                // diagnosticProvider.dispose();
                 outputChannel.dispose();
             }
         });
