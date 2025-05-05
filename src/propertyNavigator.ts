@@ -57,6 +57,11 @@ export class PropertyNavigator {
         context.subscriptions.push(
             vscode.window.onDidChangeTextEditorSelection(async event => {
                 await this.updateContextMenu(event.textEditor);
+                
+                // 处理双击选择事件
+                if (this.isDoubleClickSelection(event)) {
+                    await this.handleDoubleClickSelection(event.textEditor);
+                }
             })
         );
         
@@ -68,6 +73,84 @@ export class PropertyNavigator {
                 }
             })
         );
+    }
+    
+    /**
+     * 判断是否是双击选择事件
+     * 双击选择事件的特征是：选择范围不为空，且在同一行，且选择的是一个单词
+     */
+    private isDoubleClickSelection(event: vscode.TextEditorSelectionChangeEvent): boolean {
+        // 首先确保有选择
+        if (event.selections.length === 0 || event.selections[0].isEmpty) {
+            return false;
+        }
+        
+        const selection = event.selections[0];
+        
+        // 确保选择在同一行
+        if (selection.start.line !== selection.end.line) {
+            return false;
+        }
+        
+        // 尝试检测是否是双击选择的单词
+        // 通常双击选择的特征是选择一个完整的标识符/单词
+        const selectedText = event.textEditor.document.getText(selection);
+        
+        // 检查选择的文本是否是一个合法的标识符（字母、数字、下划线或点号组成）
+        return /^[a-zA-Z0-9_\.]+$/.test(selectedText);
+    }
+    
+    /**
+     * 处理双击选择事件
+     */
+    private async handleDoubleClickSelection(editor: vscode.TextEditor): Promise<void> {
+        if (!editor || editor.document.languageId !== 'java') {
+            return;
+        }
+        
+        const selection = editor.selection;
+        if (selection.isEmpty) {
+            return;
+        }
+        
+        // 获取选中的文本
+        const selectedText = editor.document.getText(selection);
+        if (!selectedText) {
+            return;
+        }
+        
+        // 分析选中的文本，检查是否是配置键
+        const position = selection.active;
+        const key = await JavaStringAnalyzer.analyzeStringAtPosition(editor.document, position);
+        
+        if (key && this.indexManager.hasProperty(key)) {
+            // 如果是配置键，则显示上下文菜单
+            await vscode.commands.executeCommand(
+                'setContext', 
+                'java-properties-definition.canJump',
+                true
+            );
+            
+            // 获取用户配置：是否启用双击跳转
+            const config = vscode.workspace.getConfiguration('java-properties-definition');
+            const enableDoubleClickJump = config.get<boolean>('enableDoubleClickJump', true);
+            
+            // 如果启用了双击跳转，直接跳转到定义
+            if (enableDoubleClickJump) {
+                // 查找配置键的位置
+                const locations = this.indexManager.findPropertyLocations(key);
+                
+                if (locations.length > 0) {
+                    // 如果只有一个位置，直接跳转
+                    if (locations.length === 1) {
+                        await this.openPropertyLocation(locations[0]);
+                    } else {
+                        // 如果有多个位置，显示选择对话框
+                        await this.showLocationPicker(locations);
+                    }
+                }
+            }
+        }
     }
     
     /**

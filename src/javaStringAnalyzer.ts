@@ -41,9 +41,29 @@ export class JavaStringAnalyzer {
     public static getStringFromSelection(document: vscode.TextDocument, selection: vscode.Selection): string | undefined {
         const text = document.getText(selection);
         
+        // 如果文本为空，则返回undefined
+        if (!text || text.trim().length === 0) {
+            return undefined;
+        }
+        
         // 如果选中的文本被引号包围，则去掉引号
         if (text.startsWith('"') && text.endsWith('"')) {
             return text.substring(1, text.length - 1);
+        }
+        
+        // 如果选中的文本没有被引号包围（通常是双击选中的情况）
+        // 检查该选中文本是否可能在代码中是被引号包围的
+        const line = document.lineAt(selection.start.line).text;
+        const selectedStartIdx = selection.start.character;
+        const selectedEndIdx = selection.end.character;
+        
+        // 检查选中文本前后是否有引号
+        const hasLeadingQuote = selectedStartIdx > 0 && line.charAt(selectedStartIdx - 1) === '"';
+        const hasTrailingQuote = selectedEndIdx < line.length && line.charAt(selectedEndIdx) === '"';
+        
+        // 如果选中文本前后都有引号，很可能是双击选中了引号内的文本
+        if (hasLeadingQuote && hasTrailingQuote) {
+            return text;
         }
         
         return text;
@@ -60,6 +80,22 @@ export class JavaStringAnalyzer {
         // 如果有选中文本，则从选中文本提取
         if (selection && !selection.isEmpty) {
             propertyKey = this.getStringFromSelection(document, selection);
+            
+            // 双击选中文本的情况
+            if (propertyKey && selection.start.line === selection.end.line) {
+                const line = document.lineAt(selection.start.line).text;
+                
+                // 检查所选文本是否位于引号内
+                let leftText = line.substring(0, selection.start.character);
+                let rightText = line.substring(selection.end.character);
+                let leftQuoteIdx = leftText.lastIndexOf('"');
+                let rightQuoteIdx = rightText.indexOf('"');
+                
+                // 如果选中文本位于引号内，我们认为它可能是一个配置键
+                if (leftQuoteIdx !== -1 && rightQuoteIdx !== -1) {
+                    return propertyKey;
+                }
+            }
         } else {
             // 否则从光标位置提取
             propertyKey = this.getStringAtCursor(document, position);

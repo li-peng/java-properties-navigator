@@ -76,6 +76,11 @@
           "type": "boolean",
           "default": true,
           "description": "Automatically rebuild index when configuration files change"
+        },
+        "java-properties-definition.enableDoubleClickJump": {
+          "type": "boolean",
+          "default": false,
+          "description": "Automatically jump to property definition when double-clicking a string"
         }
       }
     },
