@@ -21,7 +21,7 @@
 ### 3. 跳转交互功能
 
 - 在字符串上点击右键菜单项 "Jump to Property" 跳转到属性定义
-- 支持快捷键跳转：Windows/Linux (Alt+P)，macOS (Cmd+P)
+- 支持快捷键跳转：Windows/Linux (Alt+Shift+P)，macOS (Cmd+Shift+P)
 - 如果属性存在于多个配置文件中，会显示选择对话框
 
 ### 4. 高级特性
