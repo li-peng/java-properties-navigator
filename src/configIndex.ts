@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { ConfigReader, ConfigItem } from './reader/configReader';
 import { parseYaml } from './yamlParser';
+import { parseYamlFile } from './utils/yamlHelper';
 
 /**
  * 用于存储属性键位置的结构
@@ -204,6 +205,8 @@ export class ConfigurationIndexManager {
             const filename = path.basename(filePath);
             const fileExtension = path.extname(filePath);
             
+            console.log(`正在扫描文件: ${filePath}, 扩展名: ${fileExtension}`);
+            
             // 尝试从文件名提取环境信息
             let environment: string | undefined = undefined;
             const match = filename.match(/.*-([^.]+)\.(properties|ya?ml)/);
@@ -216,8 +219,21 @@ export class ConfigurationIndexManager {
             // 根据文件类型选择解析器
             if (fileExtension === '.properties') {
                 configItems = ConfigReader.parseConfig(content, filePath);
+                console.log(`解析properties文件 ${filePath}, 找到 ${configItems.length} 个配置项`);
             } else if (fileExtension === '.yml' || fileExtension === '.yaml') {
-                configItems = parseYaml(content, fileUri);
+                // 使用简化的YAML解析函数，避免复杂的库依赖问题
+                configItems = parseYamlFile(filePath);
+                console.log(`解析YAML文件 ${filePath}, 找到 ${configItems.length} 个配置项`);
+                
+                // 输出解析到的前5个YAML配置项
+                configItems.slice(0, 5).forEach((item, index) => {
+                    console.log(`  YAML配置项 #${index + 1}: 键=${item.key}, 值=${item.value}, 行=${item.line}`);
+                });
+            }
+            
+            if (configItems.length === 0) {
+                console.warn(`文件 ${filePath} 未找到配置项`);
+                return;
             }
             
             // 添加解析到的配置项到索引
@@ -233,6 +249,8 @@ export class ConfigurationIndexManager {
                 
                 this.addPropertyLocation(item.key, location);
             }
+            
+            console.log(`文件 ${filePath} 成功添加到索引，包含 ${configItems.length} 个配置项`);
         } catch (error) {
             console.error(`扫描文件 ${filePath} 时出错:`, error);
         }

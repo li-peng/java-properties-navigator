@@ -92,7 +92,7 @@ export async function activate(context: vscode.ExtensionContext) {
             })
         );
         
-        // 注册相关命令
+        // 注册重建索引命令
         context.subscriptions.push(
             vscode.commands.registerCommand('java-properties-definition.rebuildIndex', async () => {
                 outputChannel.appendLine('正在重建配置文件索引...');
@@ -100,6 +100,56 @@ export async function activate(context: vscode.ExtensionContext) {
                 outputChannel.appendLine('配置文件索引重建完成');
                 
                 vscode.window.showInformationMessage('配置文件索引已重建');
+            })
+        );
+        
+        // 注册测试YAML解析命令（用于开发调试）
+        context.subscriptions.push(
+            vscode.commands.registerCommand('java-properties-definition.testYamlParsing', async () => {
+                const editor = vscode.window.activeTextEditor;
+                if (!editor || !editor.document) {
+                    vscode.window.showWarningMessage('请打开一个YAML文件');
+                    return;
+                }
+                
+                const document = editor.document;
+                if (document.languageId !== 'yaml' && !document.fileName.endsWith('.yml') && !document.fileName.endsWith('.yaml')) {
+                    vscode.window.showWarningMessage('当前文件不是YAML文件');
+                    return;
+                }
+                
+                const content = document.getText();
+                const fileUri = document.uri;
+                
+                // 导入parseYaml函数
+                const { parseYaml } = require('./yamlParser');
+                
+                try {
+                    const items = parseYaml(content, fileUri);
+                    
+                    // 显示解析结果
+                    const outputChannel = vscode.window.createOutputChannel('YAML Parse Test');
+                    outputChannel.clear();
+                    outputChannel.appendLine(`解析 ${fileUri.fsPath} 完成，找到 ${items.length} 个属性`);
+                    outputChannel.appendLine('----------------------------');
+                    
+                    items.forEach((item: any) => {
+                        outputChannel.appendLine(`键: ${item.key}`);
+                        outputChannel.appendLine(`值: ${item.value}`);
+                        outputChannel.appendLine(`位置: 行 ${item.line+1}, 列 ${item.column}`);
+                        outputChannel.appendLine(`占位符: ${item.hasPlaceholders ? '是' : '否'}`);
+                        if (item.placeholderKeys && item.placeholderKeys.length > 0) {
+                            outputChannel.appendLine(`占位符键: ${item.placeholderKeys.join(', ')}`);
+                        }
+                        outputChannel.appendLine('----------------------------');
+                    });
+                    
+                    outputChannel.show();
+                    
+                    vscode.window.showInformationMessage(`YAML解析完成，找到 ${items.length} 个属性`);
+                } catch (error) {
+                    vscode.window.showErrorMessage(`YAML解析失败: ${error}`);
+                }
             })
         );
         

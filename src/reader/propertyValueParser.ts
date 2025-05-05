@@ -194,4 +194,13 @@ export class PropertyValueParser {
         
         return /\${[^}]+}/.test(value);
     }
+    
+    /**
+     * 从属性值中提取所有占位符键
+     * @param value 属性值
+     * @returns 占位符键数组
+     */
+    public static getPlaceholderKeys(value: string): string[] {
+        return this.parsePlaceholders(value).map(p => p.key);
+    }
 } 

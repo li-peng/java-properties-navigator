@@ -122,28 +122,10 @@ export class ConfigReader {
      * @returns 解析后的配置项数组
      */
     private static parseYamlFile(content: string, filePath: string): ConfigItem[] {
-        const yamlProperties = YamlReader.parse(content, filePath);
-        
-        return yamlProperties.map(item => {
-            // 提取属性值中的占位符键（如果是字符串且包含占位符）
-            let placeholderKeys: string[] | undefined = undefined;
-            if (item.hasPlaceholders && typeof item.value === 'string') {
-                placeholderKeys = YamlReader.getPlaceholders(item.value);
-            }
-            
-            return {
-                key: item.path,
-                value: item.value,
-                line: item.line,
-                column: item.column,
-                length: item.length,
-                comment: undefined, // YAML解析器当前不提取注释
-                filePath: filePath,
-                fileType: 'yaml',
-                hasPlaceholders: item.hasPlaceholders,
-                placeholderKeys
-            };
-        });
+        // 直接调用更准确的parseYaml函数，而不是YamlReader
+        const fileUri = require('vscode').Uri.file(filePath);
+        const { parseYaml } = require('../yamlParser');
+        return parseYaml(content, fileUri);
     }
     
     /**
@@ -217,8 +199,10 @@ export class ConfigReader {
                 
             case '.yml':
             case '.yaml':
-                const yamlItem = YamlReader.getProperty(content, key);
-                return yamlItem ? this.yamlPropertyItemToConfigItem(yamlItem, filePath) : undefined;
+                const fileUri = require('vscode').Uri.file(filePath);
+                const { parseYaml } = require('../yamlParser');
+                const yamlItems = parseYaml(content, fileUri);
+                return yamlItems.find((item: ConfigItem) => item.key === key);
                 
             default:
                 console.warn(`不支持的文件类型: ${ext}, 文件: ${filePath}`);
@@ -239,7 +223,11 @@ export class ConfigReader {
         if (item.fileType === 'properties') {
             return PropertiesReader.formatValue(item.value, resolver);
         } else if (item.fileType === 'yaml') {
-            return YamlReader.formatValue(item.value, resolver);
+            // YAML值的格式化
+            if (typeof item.value === 'string' && item.hasPlaceholders && resolver) {
+                return PropertyValueParser.resolvePlaceholders(item.value, resolver);
+            }
+            return item.value;
         }
         
         return item.value;

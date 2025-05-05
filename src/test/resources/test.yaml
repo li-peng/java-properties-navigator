@@ -1,0 +1,16 @@
+server:
+  port: 8080
+  context-path: /api
+
+spring:
+  application:
+    name: test-service
+  datasource:
+    url: jdbc:mysql://localhost:3306/testdb
+    username: ${DB_USER:root}
+    password: ${DB_PASS:password}
+
+logging:
+  level:
+    root: INFO
+    com.example: DEBUG 

@@ -29,6 +29,10 @@
         "title": "Rebuild Properties Index"
       },
       {
+        "command": "java-properties-definition.testYamlParsing",
+        "title": "Test YAML Property Parsing"
+      },
+      {
         "command": "java-properties-definition.findUsages",
         "title": "Find Property Usages"
       }
