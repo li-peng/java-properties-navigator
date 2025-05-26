@@ -54,14 +54,17 @@
           "type": "array",
           "default": [
             "src/main/resources",
-            "**/src/main/resources",
-            "**/**/src/main/resources"
+            "**/src/main/resources"
           ],
           "description": "Directories to scan for properties files"
         },
         "java-properties-definition.excludePatterns": {
           "type": "array",
-          "default": [],
+          "default": [
+            "**/target/**",
+            "**/build/**",
+            "**/node_modules/**"
+          ],
           "description": "Patterns to exclude from scanning"
         },
         "java-properties-definition.fileExtensions": {

@@ -376,10 +376,15 @@ export class ReversePropertyNavigator {
         // 3. "key" 作为字符串字面量
         const searchPattern = `"${key}"|"\\$\\{${key}\\}"`;
         
+        // 获取配置的排除模式
+        const config = vscode.workspace.getConfiguration('java-properties-definition');
+        const excludePatterns = config.get<string[]>('excludePatterns', ['**/target/**', '**/build/**', '**/node_modules/**']);
+        const excludePattern = excludePatterns.join(',');
+        
         // 搜索Java文件
         const javaFiles = await vscode.workspace.findFiles(
             '**/*.java', 
-            '**/test/**' // 排除测试文件
+            excludePattern
         );
         
         for (const fileUri of javaFiles) {

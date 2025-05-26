@@ -40,12 +40,81 @@
 
 此扩展提供以下设置：
 
-- `java-properties-definition.scanDirectories`: 要扫描的目录列表 (默认: ["src/main/resources", "src/test/resources"])
-- `java-properties-definition.excludePatterns`: 排除的文件模式 (默认: [])
+- `java-properties-definition.scanDirectories`: 要扫描的目录列表 (默认: ["src/main/resources", "**/src/main/resources"])
+- `java-properties-definition.excludePatterns`: 排除的文件模式 (默认: ["**/target/**", "**/build/**", "**/node_modules/**"])
 - `java-properties-definition.fileExtensions`: 要包含的文件扩展名 (默认: [".properties", ".yml", ".yaml"])
 - `java-properties-definition.enableDiagnostics`: 启用未定义键的诊断提示 (默认: true)
 - `java-properties-definition.showStatusBar`: 显示状态栏项 (默认: true)
 - `java-properties-definition.autoRebuildOnConfigChange`: 配置文件变更时自动重建索引 (默认: true)
+
+### 排除模式详细说明
+
+`excludePatterns` 支持多种匹配方式：
+
+#### 1. 相对路径精确匹配
+```json
+"java-properties-definition.excludePatterns": [
+    "common/src/main/resources/messages_en_US.properties"
+]
+```
+
+#### 2. 文件名匹配
+```json
+"java-properties-definition.excludePatterns": [
+    "messages_en_US.properties",
+    "temp.properties"
+]
+```
+
+#### 3. 目录通配符匹配
+```json
+"java-properties-definition.excludePatterns": [
+    "**/target/**",
+    "**/build/**",
+    "**/temp/**"
+]
+```
+
+#### 4. 文件扩展名匹配
+```json
+"java-properties-definition.excludePatterns": [
+    "*.bak",
+    "*.tmp"
+]
+```
+
+#### 5. 路径包含匹配
+```json
+"java-properties-definition.excludePatterns": [
+    "test",
+    "backup",
+    "cache"
+]
+```
+
+#### 完整配置示例
+```json
+{
+    "java-properties-definition.scanDirectories": [
+        "src/main/resources",
+        "**/src/main/resources",
+        "config"
+    ],
+    "java-properties-definition.excludePatterns": [
+        "**/target/**",
+        "**/build/**",
+        "**/node_modules/**",
+        "common/src/main/resources/messages_en_US.properties",
+        "*.bak",
+        "temp"
+    ],
+    "java-properties-definition.fileExtensions": [
+        ".properties",
+        ".yml",
+        ".yaml"
+    ]
+}
+```
 
 ## 命令
 

@@ -88,10 +88,16 @@ export class ConfigurationIndexManager {
         
         for (const folder of vscode.workspace.workspaceFolders) {
             for (const scanDir of scanDirs) {
-                const dirPath = path.join(folder.uri.fsPath, scanDir);
-                
-                if (fs.existsSync(dirPath)) {
-                    await this.scanDirectory(dirPath, fileExtensions, excludePatterns);
+                // 处理通配符模式
+                if (scanDir.startsWith('**/')) {
+                    const pattern = scanDir.slice(3); // 移除 **/
+                    await this.scanWithWildcard(folder.uri.fsPath, pattern, fileExtensions, excludePatterns);
+                } else {
+                    // 处理直接路径
+                    const dirPath = path.join(folder.uri.fsPath, scanDir);
+                    if (fs.existsSync(dirPath)) {
+                        await this.scanDirectory(dirPath, fileExtensions, excludePatterns);
+                    }
                 }
             }
         }
@@ -103,20 +109,83 @@ export class ConfigurationIndexManager {
     }
     
     /**
+     * 使用通配符模式扫描目录
+     */
+    private async scanWithWildcard(rootPath: string, pattern: string, extensions: string[], excludePatterns: string[]): Promise<void> {
+        const findMatchingDirectories = (currentPath: string, remainingPattern: string): string[] => {
+            const results: string[] = [];
+            
+            try {
+                const entries = fs.readdirSync(currentPath, { withFileTypes: true });
+                
+                for (const entry of entries) {
+                    if (!entry.isDirectory()) {
+                        continue;
+                    }
+                    
+                    const entryPath = path.join(currentPath, entry.name);
+                    
+                    // 检查是否应该被排除
+                    if (this.shouldExcludePath(entryPath, excludePatterns)) {
+                        continue;
+                    }
+                    
+                    // 检查当前目录是否匹配模式
+                    if (entryPath.endsWith(remainingPattern.replace(/\//g, path.sep))) {
+                        results.push(entryPath);
+                    }
+                    
+                    // 递归搜索子目录
+                    results.push(...findMatchingDirectories(entryPath, remainingPattern));
+                }
+            } catch (error: any) {
+                // 忽略无法访问的目录
+            }
+            
+            return results;
+        };
+        
+        const matchingDirs = findMatchingDirectories(rootPath, pattern);
+        
+        for (const dir of matchingDirs) {
+            await this.scanDirectory(dir, extensions, excludePatterns);
+        }
+    }
+    
+    /**
      * 设置文件观察器以监听配置文件变更
      */
     private setupFileWatcher(): void {
         const config = vscode.workspace.getConfiguration('java-properties-definition');
         const fileExtensions = config.get<string[]>('fileExtensions', ['.properties', '.yml', '.yaml']);
+        const scanDirectories = config.get<string[]>('scanDirectories', ['src/main/resources', '**/src/main/resources']);
+        const excludePatterns = config.get<string[]>('excludePatterns', ['**/target/**', '**/build/**', '**/node_modules/**']);
         
-        // 创建文件扩展名的glob模式
-        const pattern = `**/*{${fileExtensions.join(',')}}`;
+        // 构建基于扫描目录的监听模式
+        const patterns: string[] = [];
+        for (const scanDir of scanDirectories) {
+            const normalizedScanDir = scanDir.replace(/\\/g, '/');
+            for (const ext of fileExtensions) {
+                patterns.push(`${normalizedScanDir}/**/*${ext}`);
+            }
+        }
         
-        this.watcher = vscode.workspace.createFileSystemWatcher(pattern);
+        // 创建排除模式字符串
+        const excludePattern = excludePatterns.join(',');
         
-        this.watcher.onDidChange(uri => this.handleFileChange(uri));
-        this.watcher.onDidCreate(uri => this.handleFileChange(uri));
-        this.watcher.onDidDelete(uri => this.handleFileDelete(uri));
+        // 为每个模式创建监听器
+        for (const pattern of patterns) {
+            const watcher = vscode.workspace.createFileSystemWatcher(pattern, false, false, false);
+            
+            watcher.onDidChange(uri => this.handleFileChange(uri));
+            watcher.onDidCreate(uri => this.handleFileChange(uri));
+            watcher.onDidDelete(uri => this.handleFileDelete(uri));
+            
+            // 存储监听器以便后续清理
+            if (!this.watcher) {
+                this.watcher = watcher;
+            }
+        }
     }
     
     /**
@@ -126,9 +195,21 @@ export class ConfigurationIndexManager {
         const filePath = uri.fsPath;
         const config = vscode.workspace.getConfiguration('java-properties-definition');
         const fileExtensions = config.get<string[]>('fileExtensions', ['.properties', '.yml', '.yaml']);
+        const scanDirectories = config.get<string[]>('scanDirectories', ['src/main/resources', '**/src/main/resources']);
+        const excludePatterns = config.get<string[]>('excludePatterns', ['**/target/**', '**/build/**', '**/node_modules/**']);
         
         const ext = path.extname(filePath);
         if (fileExtensions.includes(ext)) {
+            // 验证文件是否在扫描目录内
+            if (!this.isPathInScanDirectories(filePath, scanDirectories)) {
+                return;
+            }
+            
+            // 验证文件是否应该被排除
+            if (this.shouldExcludePath(filePath, excludePatterns)) {
+                return;
+            }
+            
             // 移除该文件的所有属性，然后重新添加
             this.removeFileFromIndex(filePath);
             await this.scanFile(filePath);
@@ -183,7 +264,7 @@ export class ConfigurationIndexManager {
             const entryPath = path.join(dirPath, entry.name);
             
             // 检查是否匹配排除模式
-            if (excludePatterns.some(pattern => entryPath.includes(pattern))) {
+            if (this.shouldExcludePath(entryPath, excludePatterns)) {
                 continue;
             }
             
@@ -196,6 +277,99 @@ export class ConfigurationIndexManager {
     }
     
     /**
+     * 检查路径是否应该被排除
+     */
+    private shouldExcludePath(filePath: string, excludePatterns: string[]): boolean {
+        if (!excludePatterns || excludePatterns.length === 0) {
+            return false;
+        }
+
+        // 获取工作区根路径，用于计算相对路径
+        const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+        if (!workspaceRoot) {
+            return false;
+        }
+
+        // 计算相对于工作区的路径
+        const relativePath = path.relative(workspaceRoot, filePath);
+        const normalizedRelativePath = relativePath.replace(/\\/g, '/'); // 统一使用正斜杠
+        const fileName = path.basename(filePath);
+
+        for (const pattern of excludePatterns) {
+            const normalizedPattern = pattern.replace(/\\/g, '/'); // 统一使用正斜杠
+            
+            // 1. 检查是否是简单的字符串包含匹配（原有逻辑）
+            if (filePath.includes(pattern)) {
+                return true;
+            }
+            
+            // 2. 检查相对路径是否匹配
+            if (normalizedRelativePath === normalizedPattern) {
+                return true;
+            }
+            
+            // 3. 检查文件名是否匹配
+            if (fileName === normalizedPattern) {
+                return true;
+            }
+            
+            // 4. 检查相对路径是否包含模式
+            if (normalizedRelativePath.includes(normalizedPattern)) {
+                return true;
+            }
+            
+            // 5. 支持简单的通配符匹配 (**/pattern/**)
+            if (normalizedPattern.startsWith('**/') && normalizedPattern.endsWith('/**')) {
+                const middlePart = normalizedPattern.slice(3, -3); // 移除 **/ 和 /**
+                if (normalizedRelativePath.includes(middlePart)) {
+                    return true;
+                }
+            }
+            
+            // 6. 支持文件扩展名匹配 (*.ext)
+            if (normalizedPattern.startsWith('*.')) {
+                const extension = normalizedPattern.slice(1); // 移除 *
+                if (fileName.endsWith(extension)) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+    }
+
+    /**
+     * 检查文件路径是否在配置的扫描目录内
+     */
+    private isPathInScanDirectories(filePath: string, scanDirectories: string[]): boolean {
+        if (!vscode.workspace.workspaceFolders) {
+            return false;
+        }
+
+        const workspaceRoot = vscode.workspace.workspaceFolders[0].uri.fsPath;
+        const relativePath = path.relative(workspaceRoot, filePath);
+        const normalizedRelativePath = relativePath.replace(/\\/g, '/');
+
+        for (const scanDir of scanDirectories) {
+            const normalizedScanDir = scanDir.replace(/\\/g, '/');
+            
+            // 处理通配符模式 **/src/main/resources
+            if (normalizedScanDir.startsWith('**/')) {
+                const pattern = normalizedScanDir.slice(3); // 移除 **/
+                if (normalizedRelativePath.includes(pattern)) {
+                    return true;
+                }
+            }
+            // 处理直接路径匹配
+            else if (normalizedRelativePath.startsWith(normalizedScanDir)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+    
+    /**
      * 扫描单个配置文件
      */
     private async scanFile(filePath: string): Promise<void> {
@@ -205,9 +379,6 @@ export class ConfigurationIndexManager {
             const filename = path.basename(filePath);
             const fileExtension = path.extname(filePath);
             
-            console.log(`正在扫描文件: ${filePath}, 扩展名: ${fileExtension}`);
-            
-            // 尝试从文件名提取环境信息
             let environment: string | undefined = undefined;
             const match = filename.match(/.*-([^.]+)\.(properties|ya?ml)/);
             if (match && match[1]) {
@@ -219,20 +390,16 @@ export class ConfigurationIndexManager {
             // 根据文件类型选择解析器
             if (fileExtension === '.properties') {
                 configItems = ConfigReader.parseConfig(content, filePath);
-                console.log(`解析properties文件 ${filePath}, 找到 ${configItems.length} 个配置项`);
             } else if (fileExtension === '.yml' || fileExtension === '.yaml') {
                 // 使用简化的YAML解析函数，避免复杂的库依赖问题
                 configItems = parseYamlFile(filePath);
-                console.log(`解析YAML文件 ${filePath}, 找到 ${configItems.length} 个配置项`);
                 
                 // 输出解析到的前5个YAML配置项
                 configItems.slice(0, 5).forEach((item, index) => {
-                    console.log(`  YAML配置项 #${index + 1}: 键=${item.key}, 值=${item.value}, 行=${item.line}`);
                 });
             }
             
             if (configItems.length === 0) {
-                console.warn(`文件 ${filePath} 未找到配置项`);
                 return;
             }
             
@@ -249,8 +416,6 @@ export class ConfigurationIndexManager {
                 
                 this.addPropertyLocation(item.key, location);
             }
-            
-            console.log(`文件 ${filePath} 成功添加到索引，包含 ${configItems.length} 个配置项`);
         } catch (error) {
             console.error(`扫描文件 ${filePath} 时出错:`, error);
         }

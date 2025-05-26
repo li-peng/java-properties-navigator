@@ -192,6 +192,15 @@ export class ConfigReferenceProvider implements vscode.ReferenceProvider {
     }
     
     /**
+     * 获取配置的排除模式
+     */
+    private getExcludePatterns(): string {
+        const config = vscode.workspace.getConfiguration('java-properties-definition');
+        const excludePatterns = config.get<string[]>('excludePatterns', ['**/target/**', '**/build/**', '**/node_modules/**']);
+        return excludePatterns.join(',');
+    }
+    
+    /**
      * 提供引用位置
      * 当用户在配置文件中使用Find All References功能时被调用
      */
@@ -210,7 +219,7 @@ export class ConfigReferenceProvider implements vscode.ReferenceProvider {
         }
         
         // 从所有配置文件中查找引用
-        const configFiles = await vscode.workspace.findFiles('**/*.{properties,yml,yaml}');
+        const configFiles = await vscode.workspace.findFiles('**/*.{properties,yml,yaml}', this.getExcludePatterns());
         
         // 查找配置文件中的引用
         for (const file of configFiles) {
@@ -241,7 +250,7 @@ export class ConfigReferenceProvider implements vscode.ReferenceProvider {
         
         // 查找Java、Kotlin、Scala代码中对配置的引用
         if (context.includeDeclaration) {
-            const codeFiles = await vscode.workspace.findFiles('**/*.{java,kt,scala}');
+            const codeFiles = await vscode.workspace.findFiles('**/*.{java,kt,scala}', this.getExcludePatterns());
             
             for (const file of codeFiles) {
                 if (token.isCancellationRequested) {

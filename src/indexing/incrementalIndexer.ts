@@ -119,7 +119,7 @@ export class IncrementalIndexer {
                 const entryPath = path.join(dirPath, entry.name);
                 
                 // 检查是否匹配排除模式
-                if (excludePatterns.some(pattern => entryPath.includes(pattern))) {
+                if (this.shouldExcludePath(entryPath, excludePatterns)) {
                     continue;
                 }
                 
@@ -134,6 +134,68 @@ export class IncrementalIndexer {
         } catch (error) {
             console.error(`扫描目录 ${dirPath} 时出错:`, error);
         }
+    }
+    
+    /**
+     * 检查路径是否应该被排除
+     */
+    private shouldExcludePath(filePath: string, excludePatterns: string[]): boolean {
+        if (!excludePatterns || excludePatterns.length === 0) {
+            return false;
+        }
+
+        // 获取工作区根路径，用于计算相对路径
+        const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+        if (!workspaceRoot) {
+            return false;
+        }
+
+        // 计算相对于工作区的路径
+        const relativePath = path.relative(workspaceRoot, filePath);
+        const normalizedRelativePath = relativePath.replace(/\\/g, '/'); // 统一使用正斜杠
+        const fileName = path.basename(filePath);
+
+        for (const pattern of excludePatterns) {
+            const normalizedPattern = pattern.replace(/\\/g, '/'); // 统一使用正斜杠
+            
+            // 1. 检查是否是简单的字符串包含匹配（原有逻辑）
+            if (filePath.includes(pattern)) {
+                return true;
+            }
+            
+            // 2. 检查相对路径是否匹配
+            if (normalizedRelativePath === normalizedPattern) {
+                return true;
+            }
+            
+            // 3. 检查文件名是否匹配
+            if (fileName === normalizedPattern) {
+                return true;
+            }
+            
+            // 4. 检查相对路径是否包含模式
+            if (normalizedRelativePath.includes(normalizedPattern)) {
+                return true;
+            }
+            
+            // 5. 支持简单的通配符匹配 (**/pattern/**)
+            if (normalizedPattern.startsWith('**/') && normalizedPattern.endsWith('/**')) {
+                const middlePart = normalizedPattern.slice(3, -3); // 移除 **/ 和 /**
+                if (normalizedRelativePath.includes(middlePart)) {
+                    return true;
+                }
+            }
+            
+            // 6. 支持文件扩展名匹配 (*.ext)
+            if (normalizedPattern.startsWith('*.')) {
+                const extension = normalizedPattern.slice(1); // 移除 *
+                if (fileName.endsWith(extension)) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
     }
     
     /**
