@@ -1,56 +1,79 @@
 {
-  "name": "java-properties-definition",
-  "displayName": "Java Properties Definition",
-  "description": "Jump from Java code strings to properties file definitions",
-  "version": "0.0.1",
+  "name": "java-properties-navigator",
+  "displayName": "Java Properties Navigator",
+  "description": "Intelligent navigation between Java code and configuration files. Jump from property keys in Java code to their definitions in .properties, .yml, and .yaml files.",
+  "version": "1.0.0",
+  "publisher": "java-tools",
+  "license": "MIT",
   "engines": {
     "vscode": "^1.60.0"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-username/your-repo-name.git"
+    "url": "https://github.com/java-tools/java-properties-navigator.git"
   },
+  "bugs": {
+    "url": "https://github.com/java-tools/java-properties-navigator/issues"
+  },
+  "homepage": "https://github.com/java-tools/java-properties-navigator#readme",
+  "galleryBanner": {
+    "color": "#1e3a8a",
+    "theme": "dark"
+  },
+  "keywords": [
+    "java",
+    "properties",
+    "spring",
+    "configuration",
+    "navigation",
+    "yaml",
+    "yml",
+    "jump to definition",
+    "spring boot",
+    "config"
+  ],
   "categories": [
     "Programming Languages",
     "Other"
   ],
+  "qna": "marketplace",
   "activationEvents": [
     "onLanguage:java",
     "onLanguage:yaml",
-    "onCommand:java-properties-definition.jumpToProperty",
-    "onCommand:java-properties-definition.jumpToPropertyShortcut",
-    "onCommand:java-properties-definition.rebuildIndex",
-    "onCommand:java-properties-definition.testYamlParsing",
-    "onCommand:java-properties-definition.findUsages"
+    "onCommand:java-properties-navigator.jumpToProperty",
+    "onCommand:java-properties-navigator.jumpToPropertyShortcut",
+    "onCommand:java-properties-navigator.rebuildIndex",
+    "onCommand:java-properties-navigator.testYamlParsing",
+    "onCommand:java-properties-navigator.findUsages"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "java-properties-definition.jumpToProperty",
+        "command": "java-properties-navigator.jumpToProperty",
         "title": "Jump to Property"
       },
       {
-        "command": "java-properties-definition.jumpToPropertyShortcut",
+        "command": "java-properties-navigator.jumpToPropertyShortcut",
         "title": "Jump to Property (Shortcut)"
       },
       {
-        "command": "java-properties-definition.rebuildIndex",
+        "command": "java-properties-navigator.rebuildIndex",
         "title": "Rebuild Properties Index"
       },
       {
-        "command": "java-properties-definition.testYamlParsing",
+        "command": "java-properties-navigator.testYamlParsing",
         "title": "Test YAML Property Parsing"
       },
       {
-        "command": "java-properties-definition.findUsages",
+        "command": "java-properties-navigator.findUsages",
         "title": "Find Property Usages"
       }
     ],
     "configuration": {
-      "title": "Java Properties Definition",
+      "title": "Java Properties Navigator",
       "properties": {
-        "java-properties-definition.scanDirectories": {
+        "java-properties-navigator.scanDirectories": {
           "type": "array",
           "default": [
             "src/main/resources",
@@ -58,7 +81,7 @@
           ],
           "description": "Directories to scan for properties files"
         },
-        "java-properties-definition.excludePatterns": {
+        "java-properties-navigator.excludePatterns": {
           "type": "array",
           "default": [
             "**/target/**",
@@ -67,7 +90,7 @@
           ],
           "description": "Patterns to exclude from scanning"
         },
-        "java-properties-definition.fileExtensions": {
+        "java-properties-navigator.fileExtensions": {
           "type": "array",
           "default": [
             ".properties",
@@ -76,22 +99,22 @@
           ],
           "description": "File extensions to include in scanning"
         },
-        "java-properties-definition.enableDiagnostics": {
+        "java-properties-navigator.enableDiagnostics": {
           "type": "boolean",
           "default": true,
           "description": "Enable diagnostics for undefined property keys"
         },
-        "java-properties-definition.showStatusBar": {
+        "java-properties-navigator.showStatusBar": {
           "type": "boolean",
           "default": true,
           "description": "Show status bar item"
         },
-        "java-properties-definition.autoRebuildOnConfigChange": {
+        "java-properties-navigator.autoRebuildOnConfigChange": {
           "type": "boolean",
           "default": true,
           "description": "Automatically rebuild index when configuration files change"
         },
-        "java-properties-definition.enableDoubleClickJump": {
+        "java-properties-navigator.enableDoubleClickJump": {
           "type": "boolean",
           "default": false,
           "description": "Automatically jump to property definition when double-clicking a string"
@@ -102,14 +125,14 @@
       "editor/context": [
         {
           "when": "editorLangId == java && editorHasSelection",
-          "command": "java-properties-definition.jumpToProperty",
+          "command": "java-properties-navigator.jumpToProperty",
           "group": "navigation"
         }
       ]
     },
     "keybindings": [
       {
-        "command": "java-properties-definition.jumpToPropertyShortcut",
+        "command": "java-properties-navigator.jumpToPropertyShortcut",
         "key": "alt+shift+p",
         "mac": "cmd+shift+p",
         "when": "editorLangId == java"

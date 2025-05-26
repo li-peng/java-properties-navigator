@@ -1,136 +1,181 @@
-# Java Properties Definition
+# Java Properties Navigator
 
-一个VSCode扩展，用于在Java代码和属性文件之间提供智能跳转功能。当您在Java代码中使用字符串时，此扩展可以帮助您快速定位到对应的属性文件定义。
+[![Version](https://img.shields.io/visual-studio-marketplace/v/java-tools.java-properties-navigator)](https://marketplace.visualstudio.com/items?itemName=java-tools.java-properties-navigator)
+[![Installs](https://img.shields.io/visual-studio-marketplace/i/java-tools.java-properties-navigator)](https://marketplace.visualstudio.com/items?itemName=java-tools.java-properties-navigator)
+[![Rating](https://img.shields.io/visual-studio-marketplace/r/java-tools.java-properties-navigator)](https://marketplace.visualstudio.com/items?itemName=java-tools.java-properties-navigator)
 
-## 功能特性
+**Intelligent navigation between Java code and configuration files**
 
-### 1. 智能识别配置键
+Java Properties Navigator is a powerful VS Code extension that provides seamless navigation between Java source code and configuration files. Jump instantly from property keys in your Java code to their definitions in `.properties`, `.yml`, and `.yaml` files.
 
-自动检测Java代码中的字符串是否为配置键，支持多种场景：
+## ✨ Features
 
-- 变量定义： `String s = "key";`
-- 方法参数： `a.getMsg("key")`
-- 注解中的字符串： `@MyAnnotation("key")`
+### 🎯 Smart Property Detection
+- **Automatic Recognition**: Intelligently detects property keys in Java strings
+- **Context-Aware**: Works with variables, method parameters, and annotations
+- **Multi-Format Support**: Supports `.properties`, `.yml`, and `.yaml` files
 
-### 2. 配置文件索引构建
+### 🚀 Instant Navigation
+- **One-Click Jump**: Right-click on any property key to jump to its definition
+- **Keyboard Shortcuts**: Quick navigation with `Alt+Shift+P` (Windows/Linux) or `Cmd+Shift+P` (macOS)
+- **Multi-Location Support**: Choose from multiple definitions when properties exist in different files
 
-- 自动扫描项目内所有 .properties、.yaml、.yml 文件并建立键值映射
-- 支持多环境配置（如 application-dev.properties 和 application-prod.properties）
-- 记录键的物理位置信息（文件路径 + 行号）
+### 💡 Enhanced Developer Experience
+- **Hover Information**: See property values on hover without leaving your Java code
+- **Status Bar Integration**: Quick access to rebuild index and extension status
+- **Real-time Updates**: Automatically refreshes when configuration files change
 
-### 3. 跳转交互功能
+### 🔧 Advanced Configuration
+- **Flexible Scanning**: Customize which directories and file types to include
+- **Smart Exclusions**: Exclude build directories, node_modules, and other irrelevant paths
+- **Environment Support**: Handle multiple environment configurations (dev, prod, test)
 
-- 在字符串上点击右键菜单项 "Jump to Property" 跳转到属性定义
-- 支持快捷键跳转：Windows/Linux (Alt+Shift+P)，macOS (Cmd+Shift+P)
-- 如果属性存在于多个配置文件中，会显示选择对话框
+## 📦 Installation
 
-### 4. 高级特性
+1. Open VS Code
+2. Go to Extensions (`Ctrl+Shift+X` or `Cmd+Shift+X`)
+3. Search for "Java Properties Navigator"
+4. Click **Install**
 
-- 状态栏指示器，可快速重建索引
-- 配置文件修改后自动刷新索引
+Alternatively, install from the [Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=java-tools.java-properties-navigator).
 
-## 使用指南
+## 🚀 Quick Start
 
-1. 打开包含Java代码和属性文件的项目
-2. 在Java文件中，将光标放置在字符串上或选中一个字符串
-3. 右键单击并从上下文菜单中选择 "Jump to Property"，或使用快捷键
-4. 插件将打开包含该属性的配置文件并高亮相关行
+1. **Open a Java project** with configuration files
+2. **Place your cursor** on a property key string in Java code
+3. **Right-click** and select "Jump to Property" or use `Alt+Shift+P`
+4. **Navigate instantly** to the property definition
 
-## 设置选项
+### Example Usage
 
-此扩展提供以下设置：
+```java
+// Java code
+@Value("${server.port}")
+private int port;
 
-- `java-properties-definition.scanDirectories`: 要扫描的目录列表 (默认: ["src/main/resources", "**/src/main/resources"])
-- `java-properties-definition.excludePatterns`: 排除的文件模式 (默认: ["**/target/**", "**/build/**", "**/node_modules/**"])
-- `java-properties-definition.fileExtensions`: 要包含的文件扩展名 (默认: [".properties", ".yml", ".yaml"])
-- `java-properties-definition.enableDiagnostics`: 启用未定义键的诊断提示 (默认: true)
-- `java-properties-definition.showStatusBar`: 显示状态栏项 (默认: true)
-- `java-properties-definition.autoRebuildOnConfigChange`: 配置文件变更时自动重建索引 (默认: true)
-
-### 排除模式详细说明
-
-`excludePatterns` 支持多种匹配方式：
-
-#### 1. 相对路径精确匹配
-```json
-"java-properties-definition.excludePatterns": [
-    "common/src/main/resources/messages_en_US.properties"
-]
+String message = getMessage("welcome.message");
 ```
 
-#### 2. 文件名匹配
-```json
-"java-properties-definition.excludePatterns": [
-    "messages_en_US.properties",
-    "temp.properties"
-]
-```
+The extension will help you navigate from `"server.port"` and `"welcome.message"` to their definitions in your configuration files.
 
-#### 3. 目录通配符匹配
-```json
-"java-properties-definition.excludePatterns": [
-    "**/target/**",
-    "**/build/**",
-    "**/temp/**"
-]
-```
+## ⚙️ Configuration
 
-#### 4. 文件扩展名匹配
-```json
-"java-properties-definition.excludePatterns": [
-    "*.bak",
-    "*.tmp"
-]
-```
+### Extension Settings
 
-#### 5. 路径包含匹配
-```json
-"java-properties-definition.excludePatterns": [
-    "test",
-    "backup",
-    "cache"
-]
-```
+| Setting | Description | Default |
+|---------|-------------|---------|
+| `java-properties-navigator.scanDirectories` | Directories to scan for properties files | `["src/main/resources", "**/src/main/resources"]` |
+| `java-properties-navigator.excludePatterns` | Patterns to exclude from scanning | `["**/target/**", "**/build/**", "**/node_modules/**"]` |
+| `java-properties-navigator.fileExtensions` | File extensions to include | `[".properties", ".yml", ".yaml"]` |
+| `java-properties-navigator.enableDiagnostics` | Enable diagnostics for undefined properties | `true` |
+| `java-properties-navigator.showStatusBar` | Show status bar item | `true` |
+| `java-properties-navigator.autoRebuildOnConfigChange` | Auto-rebuild index on config changes | `true` |
 
-#### 完整配置示例
+### Advanced Exclusion Patterns
+
+Configure exclusion patterns to optimize scanning performance:
+
 ```json
 {
-    "java-properties-definition.scanDirectories": [
-        "src/main/resources",
-        "**/src/main/resources",
-        "config"
-    ],
-    "java-properties-definition.excludePatterns": [
-        "**/target/**",
-        "**/build/**",
-        "**/node_modules/**",
-        "common/src/main/resources/messages_en_US.properties",
-        "*.bak",
-        "temp"
-    ],
-    "java-properties-definition.fileExtensions": [
-        ".properties",
-        ".yml",
-        ".yaml"
-    ]
+  "java-properties-navigator.excludePatterns": [
+    "**/target/**",
+    "**/build/**", 
+    "**/node_modules/**",
+    "**/.git/**",
+    "**/temp/**",
+    "*.backup",
+    "test-resources/**"
+  ]
 }
 ```
 
-## 命令
+### Multi-Module Projects
 
-- `java-properties-definition.jumpToProperty`: 跳转到属性定义
-- `java-properties-definition.rebuildIndex`: 手动重建索引
-- `java-properties-definition.findUsages`: 查找属性使用位置（将在未来版本实现）
+For complex projects with multiple modules:
 
-## 需求
+```json
+{
+  "java-properties-navigator.scanDirectories": [
+    "*/src/main/resources",
+    "*/*/src/main/resources", 
+    "config/**",
+    "shared/resources/**"
+  ]
+}
+```
 
-- VS Code 1.60.0 或更高版本
+## 🎮 Commands
 
-## 注意事项
+| Command | Description | Shortcut |
+|---------|-------------|----------|
+| `Jump to Property` | Navigate to property definition | `Alt+Shift+P` (Win/Linux)<br>`Cmd+Shift+P` (macOS) |
+| `Rebuild Properties Index` | Manually rebuild the properties index | - |
+| `Find Property Usages` | Find where a property is used (coming soon) | - |
 
-- 首次加载大型项目时，索引构建可能需要一些时间
-- 对于非常复杂的YAML结构，可能需要手动跳转到正确位置
+## 🔍 How It Works
 
-## 反馈与贡献
+1. **Indexing**: Scans your project for configuration files and builds an index
+2. **Detection**: Analyzes Java strings to identify potential property keys  
+3. **Navigation**: Provides instant navigation to property definitions
+4. **Updates**: Monitors file changes and updates the index automatically
 
-如果您有任何问题、建议或反馈，请提交GitHub Issue。 
+## 🛠️ Supported File Types
+
+- **Properties Files**: `.properties`
+- **YAML Files**: `.yml`, `.yaml`
+- **Java Files**: `.java` (for property key detection)
+
+## 📋 Requirements
+
+- **VS Code**: Version 1.60.0 or higher
+- **Java Project**: With configuration files in standard locations
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+**Q: Properties not found?**
+- Ensure your configuration files are in the scanned directories
+- Check the `scanDirectories` setting
+- Rebuild the index using the status bar button
+
+**Q: Performance issues with large projects?**
+- Add more exclusion patterns for irrelevant directories
+- Limit scan directories to essential paths only
+
+**Q: Navigation not working?**
+- Verify the property key is a valid string literal
+- Check that the property exists in your configuration files
+- Try rebuilding the index
+
+### Reset Extension
+
+If you encounter persistent issues:
+1. Open Command Palette (`Ctrl+Shift+P`)
+2. Run "Rebuild Properties Index"
+3. Restart VS Code if needed
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our [Contributing Guide](https://github.com/java-tools/java-properties-navigator/blob/main/CONTRIBUTING.md) for details.
+
+### Development Setup
+
+1. Clone the repository
+2. Run `npm install`
+3. Open in VS Code
+4. Press `F5` to start debugging
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- Thanks to the VS Code team for the excellent extension API
+- Inspired by the need for better Java development tools
+- Built with ❤️ for the Java community
+
+---
+
+**Enjoy seamless navigation between your Java code and configuration files!** 🚀 
