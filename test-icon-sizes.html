@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Java Properties Navigator - 图标尺寸测试</title>
+    <style>
+        body { 
+            margin: 0; 
+            padding: 20px; 
+            background: #f5f5f5; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { 
+            color: #333; 
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .icon-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        .icon-item {
+            text-align: center;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background: #fafafa;
+        }
+        .icon-item h3 {
+            margin: 0 0 15px 0;
+            color: #555;
+            font-size: 14px;
+        }
+        .icon-display {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 80px;
+            margin-bottom: 10px;
+        }
+        .size-info {
+            font-size: 12px;
+            color: #888;
+            margin-top: 10px;
+        }
+        .comparison {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 40px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .comparison-item {
+            text-align: center;
+        }
+        .comparison-item h4 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+        .vs {
+            font-size: 24px;
+            font-weight: bold;
+            color: #666;
+        }
+        .features {
+            background: #e8f4fd;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+        .features h3 {
+            color: #1976d2;
+            margin-top: 0;
+        }
+        .features ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .features li {
+            margin-bottom: 8px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Java Properties Navigator - 图标设计测试</h1>
+        
+        <div class="icon-grid">
+            <div class="icon-item">
+                <h3>16x16 像素 (状态栏)</h3>
+                <div class="icon-display">
+                    <canvas id="icon16" width="16" height="16"></canvas>
+                </div>
+                <div class="size-info">最小显示尺寸</div>
+            </div>
+            
+            <div class="icon-item">
+                <h3>24x24 像素 (工具栏)</h3>
+                <div class="icon-display">
+                    <canvas id="icon24" width="24" height="24"></canvas>
+                </div>
+                <div class="size-info">工具栏图标</div>
+            </div>
+            
+            <div class="icon-item">
+                <h3>32x32 像素 (侧边栏)</h3>
+                <div class="icon-display">
+                    <canvas id="icon32" width="32" height="32"></canvas>
+                </div>
+                <div class="size-info">扩展列表</div>
+            </div>
+            
+            <div class="icon-item">
+                <h3>48x48 像素 (设置页面)</h3>
+                <div class="icon-display">
+                    <canvas id="icon48" width="48" height="48"></canvas>
+                </div>
+                <div class="size-info">设置界面</div>
+            </div>
+            
+            <div class="icon-item">
+                <h3>64x64 像素 (扩展详情)</h3>
+                <div class="icon-display">
+                    <canvas id="icon64" width="64" height="64"></canvas>
+                </div>
+                <div class="size-info">扩展详情页</div>
+            </div>
+            
+            <div class="icon-item">
+                <h3>128x128 像素 (标准)</h3>
+                <div class="icon-display">
+                    <canvas id="icon128" width="128" height="128"></canvas>
+                </div>
+                <div class="size-info">VS Code 扩展商店</div>
+            </div>
+        </div>
+        
+        <div class="comparison">
+            <div class="comparison-item">
+                <h4>旧版图标</h4>
+                <canvas id="oldIcon" width="64" height="64"></canvas>
+                <div style="margin-top: 10px; font-size: 12px; color: #666;">
+                    简单蓝色背景<br>基础设计
+                </div>
+            </div>
+            <div class="vs">VS</div>
+            <div class="comparison-item">
+                <h4>新版图标</h4>
+                <canvas id="newIcon" width="64" height="64"></canvas>
+                <div style="margin-top: 10px; font-size: 12px; color: #666;">
+                    现代化渐变<br>丰富细节
+                </div>
+            </div>
+        </div>
+        
+        <div class="features">
+            <h3>🎨 新图标设计特点</h3>
+            <ul>
+                <li><strong>现代化渐变背景</strong>：紫蓝色到青蓝色的渐变效果，符合现代UI趋势</li>
+                <li><strong>Java身份标识</strong>：保留经典的咖啡杯元素，强化Java开发工具身份</li>
+                <li><strong>功能可视化</strong>：杯内文档图标代表配置文件，箭头表示导航功能</li>
+                <li><strong>生动效果</strong>：蒸汽波浪线增加动感，让图标更有生命力</li>
+                <li><strong>多尺寸适配</strong>：在16x16到128x128各种尺寸下都保持良好的可识别性</li>
+                <li><strong>品牌一致性</strong>：配色方案与VS Code主题协调，提升专业感</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // 绘制图标的函数
+        function drawIcon(canvasId, size) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            const scale = size / 128;
+            
+            // 清除画布
+            ctx.clearRect(0, 0, size, size);
+            
+            // 1. 绘制渐变背景圆形
+            const centerX = size / 2;
+            const centerY = size / 2;
+            const radius = 60 * scale;
+            
+            const gradient = ctx.createLinearGradient(
+                centerX - radius, centerY - radius,
+                centerX + radius, centerY + radius
+            );
+            gradient.addColorStop(0, '#4F46E5');
+            gradient.addColorStop(1, '#06B6D4');
+            
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // 2. 绘制咖啡杯主体轮廓
+            const cupX = centerX - 5 * scale;
+            const cupY = centerY - 10 * scale;
+            const cupWidth = 35 * scale;
+            const cupHeight = 40 * scale;
+            
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.lineWidth = Math.max(1, 4 * scale);
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            
+            // 杯子主体
+            ctx.beginPath();
+            ctx.moveTo(cupX - cupWidth/2, cupY - cupHeight/2);
+            ctx.lineTo(cupX - cupWidth/2, cupY + cupHeight/2 - 8 * scale);
+            ctx.quadraticCurveTo(cupX - cupWidth/2, cupY + cupHeight/2, cupX - cupWidth/2 + 8 * scale, cupY + cupHeight/2);
+            ctx.lineTo(cupX + cupWidth/2 - 8 * scale, cupY + cupHeight/2);
+            ctx.quadraticCurveTo(cupX + cupWidth/2, cupY + cupHeight/2, cupX + cupWidth/2, cupY + cupHeight/2 - 8 * scale);
+            ctx.lineTo(cupX + cupWidth/2, cupY - cupHeight/2);
+            ctx.stroke();
+            
+            // 3. 添加咖啡杯手柄 (仅在较大尺寸时显示)
+            if (size >= 24) {
+                const handleX = cupX + cupWidth/2 + 5 * scale;
+                const handleY = cupY;
+                const handleSize = 12 * scale;
+                
+                ctx.beginPath();
+                ctx.arc(handleX, handleY, handleSize/2, -Math.PI/2, Math.PI/2, false);
+                ctx.stroke();
+            }
+            
+            // 4. 在杯子内部绘制文档图标 (仅在中等尺寸以上显示)
+            if (size >= 32) {
+                const docX = cupX - 10 * scale;
+                const docY = cupY;
+                const docWidth = 10 * scale;
+                const docHeight = 12 * scale;
+                
+                ctx.fillStyle = '#E0F2FE';
+                ctx.fillRect(docX - docWidth/2, docY - docHeight/2, docWidth, docHeight);
+                
+                // 文档折角
+                if (size >= 48) {
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.beginPath();
+                    ctx.moveTo(docX + docWidth/2 - 3 * scale, docY - docHeight/2);
+                    ctx.lineTo(docX + docWidth/2, docY - docHeight/2 + 3 * scale);
+                    ctx.lineTo(docX + docWidth/2, docY - docHeight/2);
+                    ctx.fill();
+                }
+            }
+            
+            // 5. 在杯子内部右侧绘制导航箭头 (仅在中等尺寸以上显示)
+            if (size >= 32) {
+                const arrowX = cupX + 8 * scale;
+                const arrowY = cupY - 3 * scale;
+                const arrowSize = 9 * scale;
+                
+                ctx.fillStyle = '#FFFFFF';
+                ctx.beginPath();
+                ctx.moveTo(arrowX - arrowSize/2, arrowY);
+                ctx.lineTo(arrowX + arrowSize/2 - 3 * scale, arrowY - arrowSize/3);
+                ctx.lineTo(arrowX + arrowSize/2 - 3 * scale, arrowY - 1 * scale);
+                ctx.lineTo(arrowX + arrowSize/2, arrowY);
+                ctx.lineTo(arrowX + arrowSize/2 - 3 * scale, arrowY + 1 * scale);
+                ctx.lineTo(arrowX + arrowSize/2 - 3 * scale, arrowY + arrowSize/3);
+                ctx.closePath();
+                ctx.fill();
+            }
+            
+            // 6. 在杯口上方添加蒸汽波浪线 (仅在大尺寸时显示)
+            if (size >= 64) {
+                const steamX = cupX;
+                const steamY = cupY - cupHeight/2 - 8 * scale;
+                
+                ctx.strokeStyle = 'rgba(255,255,255,0.6)';
+                ctx.lineWidth = Math.max(1, 2 * scale);
+                
+                for (let i = 0; i < 3; i++) {
+                    const offsetX = (i - 1) * 4 * scale;
+                    const offsetY = i * 2 * scale;
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(steamX + offsetX, steamY - offsetY);
+                    ctx.quadraticCurveTo(steamX + offsetX - 3 * scale, steamY - offsetY - 4 * scale, steamX + offsetX, steamY - offsetY - 8 * scale);
+                    ctx.quadraticCurveTo(steamX + offsetX + 3 * scale, steamY - offsetY - 12 * scale, steamX + offsetX, steamY - offsetY - 16 * scale);
+                    ctx.stroke();
+                }
+            }
+        }
+        
+        // 绘制旧版图标
+        function drawOldIcon(canvasId, size) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            const scale = size / 128;
+            
+            ctx.clearRect(0, 0, size, size);
+            
+            // 简单蓝色圆形背景
+            const centerX = size / 2;
+            const centerY = size / 2;
+            const radius = 60 * scale;
+            
+            ctx.fillStyle = '#007ACC';
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // 简单的咖啡杯和箭头
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.lineWidth = Math.max(1, 3 * scale);
+            ctx.fillStyle = '#FFFFFF';
+            
+            // 简化的杯子
+            const cupSize = 30 * scale;
+            ctx.strokeRect(centerX - cupSize/2, centerY - cupSize/2, cupSize, cupSize * 1.2);
+            
+            // 简单箭头
+            ctx.beginPath();
+            ctx.moveTo(centerX + 15 * scale, centerY);
+            ctx.lineTo(centerX + 25 * scale, centerY - 5 * scale);
+            ctx.lineTo(centerX + 25 * scale, centerY + 5 * scale);
+            ctx.closePath();
+            ctx.fill();
+        }
+        
+        // 绘制所有尺寸的图标
+        drawIcon('icon16', 16);
+        drawIcon('icon24', 24);
+        drawIcon('icon32', 32);
+        drawIcon('icon48', 48);
+        drawIcon('icon64', 64);
+        drawIcon('icon128', 128);
+        
+        // 绘制对比图标
+        drawOldIcon('oldIcon', 64);
+        drawIcon('newIcon', 64);
+        
+        console.log('✅ 图标尺寸测试页面已加载完成！');
+    </script>
+</body>
+</html> 

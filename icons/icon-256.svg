@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="256" height="256" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- 渐变背景定义 -->
+    <linearGradient id="backgroundGradient256" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4F46E5;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#06B6D4;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- 背景圆形 -->
+  <circle cx="128" cy="128" r="120" fill="url(#backgroundGradient256)" />
+  
+  <!-- 咖啡杯主体 -->
+  <g stroke="#FFFFFF" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <!-- 杯子轮廓 -->
+    <path d="M 83 88 L 83 168 Q 83 184 99 184 L 147 184 Q 163 184 163 168 L 163 88" />
+    
+    <!-- 杯子手柄 -->
+    <path d="M 163 116 Q 187 116 187 140 Q 187 164 163 164" />
+  </g>
+  
+  <!-- 杯子内部文档图标 -->
+  <g fill="#E0F2FE">
+    <!-- 文档主体 -->
+    <rect x="92" y="104" width="20" height="24" />
+    <!-- 文档折角 -->
+    <polygon points="106,104 112,104 112,110" fill="#FFFFFF" />
+  </g>
+  
+  <!-- 导航箭头 -->
+  <g fill="#FFFFFF">
+    <polygon points="134,116 152,122 146,122 146,126 152,126 134,132 134,128 140,124 134,120" />
+  </g>
+  
+  <!-- 咖啡蒸汽 -->
+  <g stroke="#FFFFFF" stroke-width="4" fill="none" opacity="0.6" stroke-linecap="round">
+    <!-- 第一条蒸汽线 -->
+    <path d="M 110 72 Q 104 64 110 56 Q 116 48 110 40" />
+    <!-- 第二条蒸汽线 -->
+    <path d="M 122 76 Q 116 68 122 60 Q 128 52 122 44" />
+    <!-- 第三条蒸汽线 -->
+    <path d="M 134 80 Q 128 72 134 64 Q 140 56 134 48" />
+  </g>
+</svg> 
