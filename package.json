@@ -16,6 +16,7 @@
     "url": "https://github.com/java-tools/java-properties-navigator/issues"
   },
   "homepage": "https://github.com/java-tools/java-properties-navigator#readme",
+  "icon": "./icons/icon.png",
   "galleryBanner": {
     "color": "#1e3a8a",
     "theme": "dark"
