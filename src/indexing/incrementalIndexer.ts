@@ -27,7 +27,7 @@ export class IncrementalIndexer {
         this.persistentIndex.updateWorkspaceInfo();
         
         // 检查是否需要全量重建索引
-        const config = vscode.workspace.getConfiguration('java-properties-definition');
+        const config = vscode.workspace.getConfiguration('java-properties-navigator');
         const forceRebuild = config.get<boolean>('forceRebuildIndex', false);
         
         if (forceRebuild) {
@@ -47,7 +47,7 @@ export class IncrementalIndexer {
             this.persistentIndex.clear();
             
             // 获取配置的扫描目录和过滤条件
-            const config = vscode.workspace.getConfiguration('java-properties-definition');
+            const config = vscode.workspace.getConfiguration('java-properties-navigator');
             const scanDirs = config.get<string[]>('scanDirectories', ['src/main/resources', 'src/test/resources']);
             const excludePatterns = config.get<string[]>('excludePatterns', []);
             const fileExtensions = config.get<string[]>('fileExtensions', ['.properties', '.yml', '.yaml']);
@@ -270,7 +270,7 @@ export class IncrementalIndexer {
      */
     public async handleFileChange(uri: vscode.Uri): Promise<void> {
         const filePath = uri.fsPath;
-        const config = vscode.workspace.getConfiguration('java-properties-definition');
+        const config = vscode.workspace.getConfiguration('java-properties-navigator');
         const fileExtensions = config.get<string[]>('fileExtensions', ['.properties', '.yml', '.yaml']);
         
         const ext = path.extname(filePath);

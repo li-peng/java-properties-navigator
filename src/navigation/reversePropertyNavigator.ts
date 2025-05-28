@@ -33,7 +33,7 @@ export class ReversePropertyNavigator {
     public registerCommands(context: vscode.ExtensionContext): void {
         // 注册查找使用命令
         context.subscriptions.push(
-            vscode.commands.registerCommand('java-properties-definition.findUsages', async () => {
+            vscode.commands.registerCommand('java-properties-navigator.findUsages', async () => {
                 await this.findPropertyUsages();
             })
         );
@@ -122,14 +122,14 @@ export class ReversePropertyNavigator {
             // 设置上下文变量，控制菜单项的显示
             await vscode.commands.executeCommand(
                 'setContext',
-                'java-properties-definition.canFindUsages',
+                'java-properties-navigator.canFindUsages',
                 hasUsages
             );
         } else {
             // 不在配置键上，隐藏菜单项
             await vscode.commands.executeCommand(
                 'setContext',
-                'java-properties-definition.canFindUsages',
+                'java-properties-navigator.canFindUsages',
                 false
             );
         }
@@ -377,7 +377,7 @@ export class ReversePropertyNavigator {
         const searchPattern = `"${key}"|"\\$\\{${key}\\}"`;
         
         // 获取配置的排除模式
-        const config = vscode.workspace.getConfiguration('java-properties-definition');
+        const config = vscode.workspace.getConfiguration('java-properties-navigator');
         const excludePatterns = config.get<string[]>('excludePatterns', ['**/target/**', '**/build/**', '**/node_modules/**']);
         const excludePattern = excludePatterns.join(',');
         

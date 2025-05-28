@@ -195,7 +195,7 @@ export class ConfigReferenceProvider implements vscode.ReferenceProvider {
      * 获取配置的排除模式
      */
     private getExcludePatterns(): string {
-        const config = vscode.workspace.getConfiguration('java-properties-definition');
+        const config = vscode.workspace.getConfiguration('java-properties-navigator');
         const excludePatterns = config.get<string[]>('excludePatterns', ['**/target/**', '**/build/**', '**/node_modules/**']);
         return excludePatterns.join(',');
     }

@@ -4,6 +4,7 @@ import * as fs from 'fs';
 import { ConfigReader, ConfigItem } from './reader/configReader';
 import { parseYaml } from './yamlParser';
 import { parseYamlFile } from './utils/yamlHelper';
+import { Logger } from './utils/logger';
 
 /**
  * 用于存储属性键位置的结构
@@ -29,12 +30,19 @@ export class ConfigurationIndexManager {
     private propertyLocations: Map<string, PropertyLocation[]> = new Map();
     private watcher: vscode.FileSystemWatcher | undefined;
     private indexRebuiltHandlers: IndexRebuiltHandler[] = [];
+    private logger: Logger;
     
     constructor() {
+        this.logger = Logger.getInstance();
+        this.logger.debug('ConfigurationIndexManager 构造函数被调用');
+        
         // 监听配置修改
         vscode.workspace.onDidChangeConfiguration(e => {
-            if (e.affectsConfiguration('java-properties-definition')) {
-                this.rebuildIndex();
+            if (e.affectsConfiguration('java-properties-navigator')) {
+                this.logger.info('检测到java-properties-navigator配置变更，准备重建索引');
+                this.rebuildIndex().catch(error => {
+                    this.logger.error('配置变更触发的索引重建失败', error);
+                });
             }
         });
     }
@@ -43,8 +51,19 @@ export class ConfigurationIndexManager {
      * 初始化并构建索引
      */
     public async initialize(): Promise<void> {
-        await this.rebuildIndex();
-        this.setupFileWatcher();
+        this.logger.info('开始初始化ConfigurationIndexManager');
+        const initStartTime = this.logger.startPerformance();
+        
+        try {
+            await this.rebuildIndex();
+            this.setupFileWatcher();
+            
+            this.logger.performance('ConfigurationIndexManager初始化', initStartTime);
+            this.logger.info('ConfigurationIndexManager初始化完成');
+        } catch (error) {
+            this.logger.error('ConfigurationIndexManager初始化失败', error);
+            throw error;
+        }
     }
 
     /**
@@ -75,34 +94,56 @@ export class ConfigurationIndexManager {
      * 重建索引
      */
     public async rebuildIndex(): Promise<void> {
+        this.logger.info('开始重建配置索引');
+        const rebuildStartTime = this.logger.startPerformance();
+        
         this.propertyLocations.clear();
         
-        const config = vscode.workspace.getConfiguration('java-properties-definition');
+        const config = vscode.workspace.getConfiguration('java-properties-navigator');
         const scanDirs = config.get<string[]>('scanDirectories', ['src/main/resources', 'src/test/resources']);
         const excludePatterns = config.get<string[]>('excludePatterns', []);
         const fileExtensions = config.get<string[]>('fileExtensions', ['.properties', '.yml', '.yaml']);
         
+        this.logger.debug('索引重建配置', {
+            scanDirs,
+            excludePatterns,
+            fileExtensions
+        });
+        
         if (!vscode.workspace.workspaceFolders) {
+            this.logger.warn('没有打开的工作区文件夹，跳过索引构建');
             return;
         }
         
+        let totalFilesScanned = 0;
+        
         for (const folder of vscode.workspace.workspaceFolders) {
+            this.logger.debug('扫描工作区文件夹', { folderPath: folder.uri.fsPath });
+            
             for (const scanDir of scanDirs) {
                 // 处理通配符模式
                 if (scanDir.startsWith('**/')) {
                     const pattern = scanDir.slice(3); // 移除 **/
-                    await this.scanWithWildcard(folder.uri.fsPath, pattern, fileExtensions, excludePatterns);
+                    const scannedCount = await this.scanWithWildcard(folder.uri.fsPath, pattern, fileExtensions, excludePatterns);
+                    totalFilesScanned += scannedCount;
                 } else {
                     // 处理直接路径
                     const dirPath = path.join(folder.uri.fsPath, scanDir);
                     if (fs.existsSync(dirPath)) {
-                        await this.scanDirectory(dirPath, fileExtensions, excludePatterns);
+                        const scannedCount = await this.scanDirectory(dirPath, fileExtensions, excludePatterns);
+                        totalFilesScanned += scannedCount;
+                    } else {
+                        this.logger.debug('扫描目录不存在', { dirPath });
                     }
                 }
             }
         }
         
-        console.log(`索引构建完成，共找到 ${this.propertyLocations.size} 个属性键`);
+        this.logger.performance('索引重建', rebuildStartTime);
+        this.logger.info('索引重建完成', {
+            属性键数量: this.propertyLocations.size,
+            扫描文件数: totalFilesScanned
+        });
         
         // 触发索引重建事件
         this.fireIndexRebuilt();
@@ -111,7 +152,7 @@ export class ConfigurationIndexManager {
     /**
      * 使用通配符模式扫描目录
      */
-    private async scanWithWildcard(rootPath: string, pattern: string, extensions: string[], excludePatterns: string[]): Promise<void> {
+    private async scanWithWildcard(rootPath: string, pattern: string, extensions: string[], excludePatterns: string[]): Promise<number> {
         const findMatchingDirectories = (currentPath: string, remainingPattern: string): string[] => {
             const results: string[] = [];
             
@@ -147,16 +188,20 @@ export class ConfigurationIndexManager {
         
         const matchingDirs = findMatchingDirectories(rootPath, pattern);
         
+        let totalScanned = 0;
         for (const dir of matchingDirs) {
-            await this.scanDirectory(dir, extensions, excludePatterns);
+            const scannedCount = await this.scanDirectory(dir, extensions, excludePatterns);
+            totalScanned += scannedCount;
         }
+        
+        return totalScanned;
     }
     
     /**
      * 设置文件观察器以监听配置文件变更
      */
     private setupFileWatcher(): void {
-        const config = vscode.workspace.getConfiguration('java-properties-definition');
+        const config = vscode.workspace.getConfiguration('java-properties-navigator');
         const fileExtensions = config.get<string[]>('fileExtensions', ['.properties', '.yml', '.yaml']);
         const scanDirectories = config.get<string[]>('scanDirectories', ['src/main/resources', '**/src/main/resources']);
         const excludePatterns = config.get<string[]>('excludePatterns', ['**/target/**', '**/build/**', '**/node_modules/**']);
@@ -193,7 +238,7 @@ export class ConfigurationIndexManager {
      */
     private async handleFileChange(uri: vscode.Uri): Promise<void> {
         const filePath = uri.fsPath;
-        const config = vscode.workspace.getConfiguration('java-properties-definition');
+        const config = vscode.workspace.getConfiguration('java-properties-navigator');
         const fileExtensions = config.get<string[]>('fileExtensions', ['.properties', '.yml', '.yaml']);
         const scanDirectories = config.get<string[]>('scanDirectories', ['src/main/resources', '**/src/main/resources']);
         const excludePatterns = config.get<string[]>('excludePatterns', ['**/target/**', '**/build/**', '**/node_modules/**']);
@@ -202,17 +247,23 @@ export class ConfigurationIndexManager {
         if (fileExtensions.includes(ext)) {
             // 验证文件是否在扫描目录内
             if (!this.isPathInScanDirectories(filePath, scanDirectories)) {
+                this.logger.debug('文件不在扫描目录内，跳过处理', { filePath });
                 return;
             }
             
             // 验证文件是否应该被排除
             if (this.shouldExcludePath(filePath, excludePatterns)) {
+                this.logger.debug('文件匹配排除模式，跳过处理', { filePath });
                 return;
             }
+            
+            this.logger.info('检测到配置文件变更', { filePath });
             
             // 移除该文件的所有属性，然后重新添加
             this.removeFileFromIndex(filePath);
             await this.scanFile(filePath);
+            
+            this.logger.debug('文件索引更新完成', { filePath });
             
             // 触发索引重建事件
             this.fireIndexRebuilt();
@@ -224,11 +275,16 @@ export class ConfigurationIndexManager {
      */
     private handleFileDelete(uri: vscode.Uri): void {
         const filePath = uri.fsPath;
+        this.logger.info('检测到配置文件删除', { filePath });
+        
         const wasRemoved = this.removeFileFromIndex(filePath);
         
         if (wasRemoved) {
+            this.logger.debug('文件已从索引中移除', { filePath });
             // 只有在确实从索引中移除了内容时才触发事件
             this.fireIndexRebuilt();
+        } else {
+            this.logger.debug('文件不在索引中，无需移除', { filePath });
         }
     }
     
@@ -257,8 +313,9 @@ export class ConfigurationIndexManager {
     /**
      * 扫描目录中的配置文件
      */
-    private async scanDirectory(dirPath: string, extensions: string[], excludePatterns: string[]): Promise<void> {
+    private async scanDirectory(dirPath: string, extensions: string[], excludePatterns: string[]): Promise<number> {
         const entries = fs.readdirSync(dirPath, { withFileTypes: true });
+        let filesScanned = 0;
         
         for (const entry of entries) {
             const entryPath = path.join(dirPath, entry.name);
@@ -269,11 +326,15 @@ export class ConfigurationIndexManager {
             }
             
             if (entry.isDirectory()) {
-                await this.scanDirectory(entryPath, extensions, excludePatterns);
+                const subDirScanned = await this.scanDirectory(entryPath, extensions, excludePatterns);
+                filesScanned += subDirScanned;
             } else if (entry.isFile() && extensions.includes(path.extname(entry.name))) {
                 await this.scanFile(entryPath);
+                filesScanned++;
             }
         }
+        
+        return filesScanned;
     }
     
     /**
@@ -417,7 +478,7 @@ export class ConfigurationIndexManager {
                 this.addPropertyLocation(item.key, location);
             }
         } catch (error) {
-            console.error(`扫描文件 ${filePath} 时出错:`, error);
+            this.logger.error(`扫描文件 ${filePath} 时出错`, error);
         }
     }
     

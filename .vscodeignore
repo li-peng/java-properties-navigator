@@ -9,6 +9,9 @@ vsc-extension-quickstart.md
 **/*.map
 **/*.ts
 **/node_modules/**
+!node_modules/js-yaml/**
+!node_modules/yaml/**
+!node_modules/argparse/**
 **/.git/**
 **/.DS_Store
 **/*.vsix

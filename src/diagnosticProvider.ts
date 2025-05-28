@@ -12,7 +12,7 @@ export class PropertyDiagnosticProvider {
     
     constructor(indexManager: ConfigurationIndexManager) {
         this.indexManager = indexManager;
-        this.diagnosticCollection = vscode.languages.createDiagnosticCollection('java-properties-definition');
+        this.diagnosticCollection = vscode.languages.createDiagnosticCollection('java-properties-navigator');
     }
     
     /**
@@ -43,7 +43,7 @@ export class PropertyDiagnosticProvider {
         // 监听配置变更事件
         context.subscriptions.push(
             vscode.workspace.onDidChangeConfiguration(event => {
-                if (event.affectsConfiguration('java-properties-definition')) {
+                if (event.affectsConfiguration('java-properties-navigator')) {
                     // 重新检查所有打开的Java文件
                     vscode.workspace.textDocuments.forEach(document => {
                         if (document.languageId === 'java') {
@@ -104,7 +104,7 @@ export class PropertyDiagnosticProvider {
                         vscode.DiagnosticSeverity.Warning
                     );
                     
-                    diagnostic.source = 'java-properties-definition';
+                    diagnostic.source = 'java-properties-navigator';
                     diagnostic.code = 'undefined-key';
                     
                     diagnostics.push(diagnostic);

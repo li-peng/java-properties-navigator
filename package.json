@@ -119,6 +119,17 @@
           "type": "boolean",
           "default": false,
           "description": "Automatically jump to property definition when double-clicking a string"
+        },
+        "java-properties-navigator.logLevel": {
+          "type": "string",
+          "enum": ["DEBUG", "INFO", "WARN", "ERROR"],
+          "default": "INFO",
+          "description": "Set the logging level for the extension"
+        },
+        "java-properties-navigator.enableConsoleOutput": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable console output in addition to output channel"
         }
       }
     },

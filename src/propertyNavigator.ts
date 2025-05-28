@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { ConfigurationIndexManager, PropertyLocation } from './configIndex';
 import { JavaStringAnalyzer } from './javaStringAnalyzer';
+import { Logger } from './utils/logger';
 
 /**
  * 属性导航器
@@ -8,40 +9,48 @@ import { JavaStringAnalyzer } from './javaStringAnalyzer';
  */
 export class PropertyNavigator {
     private indexManager: ConfigurationIndexManager;
+    private logger: Logger;
     
     constructor(indexManager: ConfigurationIndexManager) {
         this.indexManager = indexManager;
+        this.logger = Logger.getInstance();
+        this.logger.debug('PropertyNavigator 构造函数被调用');
     }
     
     /**
      * 注册命令和上下文菜单
      */
     public registerCommands(context: vscode.ExtensionContext): void {
+        this.logger.info('开始注册PropertyNavigator命令');
+        
         // 注册跳转命令
         context.subscriptions.push(
-            vscode.commands.registerCommand('java-properties-definition.jumpToProperty', async () => {
+            vscode.commands.registerCommand('java-properties-navigator.jumpToProperty', async () => {
                 await this.jumpToPropertyDefinition();
             })
         );
         
         // 注册一个专门用于键盘快捷键的命令
         context.subscriptions.push(
-            vscode.commands.registerTextEditorCommand('java-properties-definition.jumpToPropertyShortcut', async (editor) => {
+            vscode.commands.registerTextEditorCommand('java-properties-navigator.jumpToPropertyShortcut', async (editor) => {
                 // 如果有选中文本，直接使用选中的文本作为配置键
                 if (editor.selection && !editor.selection.isEmpty) {
                     const key = editor.document.getText(editor.selection);
                     if (key) {
                         const locations = this.indexManager.findPropertyLocations(key);
                         if (locations.length === 0) {
+                            this.logger.warn('未找到配置键定义', { key });
                             vscode.window.showWarningMessage(`未找到配置键 "${key}" 的定义。`);
                             return;
                         }
                         
                         // 如果只有一个位置，直接跳转
                         if (locations.length === 1) {
+                            this.logger.info('快捷键跳转到配置键定义', { key, location: locations[0].filePath });
                             await this.openPropertyLocation(locations[0]);
                         } else {
                             // 如果有多个位置，显示选择对话框
+                            this.logger.info('快捷键显示多个配置键位置选择', { key, locationCount: locations.length });
                             await this.showLocationPicker(locations);
                         }
                         return;
@@ -127,12 +136,12 @@ export class PropertyNavigator {
             // 如果是配置键，则显示上下文菜单
             await vscode.commands.executeCommand(
                 'setContext', 
-                'java-properties-definition.canJump',
+                'java-properties-navigator.canJump',
                 true
             );
             
             // 获取用户配置：是否启用双击跳转
-            const config = vscode.workspace.getConfiguration('java-properties-definition');
+            const config = vscode.workspace.getConfiguration('java-properties-navigator');
             const enableDoubleClickJump = config.get<boolean>('enableDoubleClickJump', true);
             
             // 如果启用了双击跳转，直接跳转到定义
@@ -170,7 +179,7 @@ export class PropertyNavigator {
         // 设置上下文变量，控制菜单项的显示
         await vscode.commands.executeCommand(
             'setContext', 
-            'java-properties-definition.canJump',
+            'java-properties-navigator.canJump',
             key !== undefined && this.indexManager.hasProperty(key)
         );
     }
@@ -192,23 +201,29 @@ export class PropertyNavigator {
         const key = await JavaStringAnalyzer.analyzeStringAtPosition(editor.document, position);
         
         if (!key) {
+            this.logger.debug('未找到配置键，光标不在有效字符串上');
             vscode.window.showInformationMessage('未找到配置键，请确保光标位于一个有效的字符串上。');
             return;
         }
+        
+        this.logger.info('开始跳转到配置键定义', { key });
         
         // 查找配置键的位置
         const locations = this.indexManager.findPropertyLocations(key);
         
         if (locations.length === 0) {
+            this.logger.warn('未找到配置键定义', { key });
             vscode.window.showWarningMessage(`未找到配置键 "${key}" 的定义。`);
             return;
         }
         
         // 如果只有一个位置，直接跳转
         if (locations.length === 1) {
+            this.logger.info('跳转到配置键定义', { key, location: locations[0].filePath });
             await this.openPropertyLocation(locations[0]);
         } else {
             // 如果有多个位置，显示选择对话框
+            this.logger.info('显示多个配置键位置选择', { key, locationCount: locations.length });
             await this.showLocationPicker(locations);
         }
     }
@@ -252,7 +267,7 @@ export class PropertyNavigator {
                 }, 3000);
             }
         } catch (error) {
-            console.error('打开属性位置时出错:', error);
+            this.logger.error('打开属性位置时出错', error);
             vscode.window.showErrorMessage(`无法打开文件 ${location.filePath}`);
         }
     }
@@ -297,7 +312,7 @@ export class PropertyNavigator {
                 return lines[location.line - 1].trim(); // 行号从1开始，数组索引从0开始
             }
         } catch (error) {
-            console.error('获取行预览时出错:', error);
+            this.logger.error('获取行预览时出错', error);
         }
         
         return '';

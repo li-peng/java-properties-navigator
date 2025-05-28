@@ -172,7 +172,7 @@ export class PropertyHoverProvider implements vscode.HoverProvider {
             }));
             
             // 直接显示值，不添加额外标签，整个值可点击跳转
-            markdownContent.appendMarkdown(`[${value}](command:java-properties-definition.openLocation?${encodedArgs})`);
+                            markdownContent.appendMarkdown(`[${value}](command:java-properties-navigator.openLocation?${encodedArgs})`);
         } else {
             // 有多个配置值，创建简洁的列表
             
@@ -194,7 +194,7 @@ export class PropertyHoverProvider implements vscode.HoverProvider {
                 }));
                 
                 // 使用简洁的"value filename"格式，整行可点击
-                markdownContent.appendMarkdown(`[${value} ${fileName}](command:java-properties-definition.openLocation?${encodedArgs})`);
+                markdownContent.appendMarkdown(`[${value} ${fileName}](command:java-properties-navigator.openLocation?${encodedArgs})`);
                 
                 // 只有当前文件名在列表中出现多次时，才显示完整路径
                 if (fileNameCounts.get(fileName)! > 1) {
