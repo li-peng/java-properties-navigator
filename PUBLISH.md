@@ -6,7 +6,7 @@ This document outlines the steps to publish the extension to the Visual Studio C
 
 ## Pre-Publishing Checklist
 
-### âœ… Completed Items
+### âœ?Completed Items
 
 - [x] **Extension renamed** from "Java Properties Definition" to "Java Properties Navigator"
 - [x] **Professional README** with comprehensive documentation
@@ -38,7 +38,7 @@ This document outlines the steps to publish the extension to the Visual Studio C
 
 1. Go to [Visual Studio Code Marketplace](https://marketplace.visualstudio.com/manage)
 2. Sign in with Microsoft account
-3. Create a publisher with ID: `Li-lianjie`
+3. Create a publisher with ID: `pengge`
 4. Verify email and complete profile
 
 ### 2. Install VSCE (if not already installed)
@@ -50,7 +50,7 @@ npm install -g @vscode/vsce
 ### 3. Login to Publisher Account
 
 ```bash
-vsce login java-tools
+vsce login pengge
 ```
 
 ### 4. Add Extension Icon

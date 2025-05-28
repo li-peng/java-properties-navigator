@@ -3,19 +3,19 @@
   "displayName": "Java Properties Navigator",
   "description": "Intelligent navigation between Java code and configuration files. Jump from property keys in Java code to their definitions in .properties, .yml, and .yaml files.",
   "version": "1.0.0",
-  "publisher": "java-tools",
+  "publisher": "pengge",
   "license": "MIT",
   "engines": {
     "vscode": "^1.60.0"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/java-tools/java-properties-navigator.git"
+    "url": "https://github.com/li-peng/java-properties-navigator.git"
   },
   "bugs": {
-    "url": "https://github.com/java-tools/java-properties-navigator/issues"
+    "url": "https://github.com/li-peng/java-properties-navigator/issues"
   },
-  "homepage": "https://github.com/java-tools/java-properties-navigator#readme",
+  "homepage": "https://github.com/li-peng/java-properties-navigator#readme",
   "icon": "./icons/icon.png",
   "galleryBanner": {
     "color": "#4F46E5",

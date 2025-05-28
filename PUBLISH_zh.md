@@ -38,7 +38,7 @@
 
 1. 访问 [Visual Studio Code 应用商店](https://marketplace.visualstudio.com/manage)
 2. 使用 Microsoft 账户登录
-3. 创建发布者 ID：`Li-lianjie`
+3. 创建发布者 ID：`pengge`
 4. 验证邮箱并完成个人资料
 
 ### 2. 安装 VSCE（如果尚未安装）
@@ -50,7 +50,7 @@ npm install -g @vscode/vsce
 ### 3. 登录发布者账户
 
 ```bash
-vsce login java-tools
+vsce login pengge
 ```
 
 ### 4. 添加扩展图标
