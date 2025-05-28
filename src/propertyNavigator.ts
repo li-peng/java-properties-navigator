@@ -202,7 +202,7 @@ export class PropertyNavigator {
         
         if (!key) {
             this.logger.debug('未找到配置键，光标不在有效字符串上');
-            vscode.window.showInformationMessage('未找到配置键，请确保光标位于一个有效的字符串上。');
+            // vscode.window.showInformationMessage('No configuration key found. Please ensure the cursor is positioned on a valid string.');
             return;
         }
         
@@ -323,6 +323,7 @@ export class PropertyNavigator {
      */
     public async findUsages(key: string): Promise<void> {
         // 这个方法会在后续版本实现，用于实现"Find Usages"功能
-        vscode.window.showInformationMessage(`查找 "${key}" 的使用位置功能将在未来版本提供。`);
+        // vscode.window.showInformationMessage(`Find usages for "${key}" feature will be available in future versions.`);
+        this.logger.info(`Find usages for "${key}" feature will be available in future versions.`);
     }
 } 

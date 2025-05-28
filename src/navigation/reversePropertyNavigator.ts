@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import { PropertyLocation } from '../configIndex';
+import { Logger } from '../utils/logger';
 
 /**
  * 用于记录Java中配置键使用的位置信息
@@ -251,13 +252,15 @@ export class ReversePropertyNavigator {
             if (!editor) {
                 return;
             }
-            
+            // 初始化日志管理器
+    const logger = Logger.getInstance();
             // 获取当前位置的配置键
             const position = editor.selection.active;
             const propertyKey = this.getPropertyKeyAtPosition(editor.document, position);
             
             if (!propertyKey) {
-                vscode.window.showInformationMessage('请将光标放在配置键上以查找使用位置。');
+                // vscode.window.showInformationMessage('Please place the cursor on a configuration key to find usage locations.');
+                logger.info('Please place the cursor on a configuration key to find usage locations.');
                 return;
             }
             
@@ -265,7 +268,8 @@ export class ReversePropertyNavigator {
             const usages = this.findUsagesForKey(propertyKey);
             
             if (usages.length === 0) {
-                vscode.window.showInformationMessage(`未找到配置键 "${propertyKey}" 的使用位置。`);
+                // vscode.window.showInformationMessage(`No usage locations found for configuration key "${propertyKey}".`);
+                logger.info(`No usage locations found for configuration key "${propertyKey}".`);
                 return;
             }
             

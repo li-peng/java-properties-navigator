@@ -114,10 +114,10 @@ export async function activate(context: vscode.ExtensionContext) {
                     await indexManager.rebuildIndex();
                     logger.performance('手动索引重建', rebuildStartTime);
                     logger.info('手动索引重建完成');
-                    vscode.window.showInformationMessage('配置文件索引已重建');
+                    vscode.window.showInformationMessage('Configuration file index has been rebuilt');
                 } catch (error) {
                     logger.error('手动索引重建失败', error);
-                    vscode.window.showErrorMessage('索引重建失败，请查看输出面板了解详情');
+                    vscode.window.showErrorMessage('Failed to rebuild the configuration file index. Please check the output panel for details.');
                 }
             })
         );
@@ -176,7 +176,8 @@ export async function activate(context: vscode.ExtensionContext) {
                     
                     testOutputChannel.show();
                     
-                    vscode.window.showInformationMessage(`YAML解析完成，找到 ${items.length} 个属性`);
+                    // vscode.window.showInformationMessage(`YAML parsing completed, found ${items.length} properties`);
+                    logger.info(`YAML parsing completed, found ${items.length} properties`);
                 } catch (error) {
                     logger.error('YAML解析测试失败', error);
                     vscode.window.showErrorMessage(`YAML解析失败: ${error}`);
@@ -239,6 +240,7 @@ export async function activate(context: vscode.ExtensionContext) {
         
         logger.performance('扩展激活', activationStartTime);
         logger.info('Java Properties Navigator 扩展激活完成');
+        vscode.window.showInformationMessage('Java Properties Navigator extension activated successfully');
     } catch (error) {
         logger.error('扩展激活失败', error);
         vscode.window.showErrorMessage('Java Properties Navigator 扩展激活失败，请查看输出面板了解详情');
