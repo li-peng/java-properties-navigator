@@ -1,5 +1,7 @@
 # Publishing Java Properties Navigator to VS Code Marketplace
 
+English | [中文](PUBLISH_zh.md)
+
 This document outlines the steps to publish the extension to the Visual Studio Code Marketplace.
 
 ## Pre-Publishing Checklist
@@ -36,7 +38,7 @@ This document outlines the steps to publish the extension to the Visual Studio C
 
 1. Go to [Visual Studio Code Marketplace](https://marketplace.visualstudio.com/manage)
 2. Sign in with Microsoft account
-3. Create a publisher with ID: `java-tools`
+3. Create a publisher with ID: `Li-lianjie`
 4. Verify email and complete profile
 
 ### 2. Install VSCE (if not already installed)

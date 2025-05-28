@@ -1,5 +1,7 @@
 # Java Properties Navigator
 
+English | [中文](README_zh.md)
+
 [![Version](https://img.shields.io/visual-studio-marketplace/v/java-tools.java-properties-navigator)](https://marketplace.visualstudio.com/items?itemName=java-tools.java-properties-navigator)
 [![Installs](https://img.shields.io/visual-studio-marketplace/i/java-tools.java-properties-navigator)](https://marketplace.visualstudio.com/items?itemName=java-tools.java-properties-navigator)
 [![Rating](https://img.shields.io/visual-studio-marketplace/r/java-tools.java-properties-navigator)](https://marketplace.visualstudio.com/items?itemName=java-tools.java-properties-navigator)
