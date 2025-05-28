@@ -2,9 +2,9 @@
 
 English | [中文](README_zh.md)
 
-[![Version](https://img.shields.io/visual-studio-marketplace/v/java-tools.java-properties-navigator)](https://marketplace.visualstudio.com/items?itemName=java-tools.java-properties-navigator)
-[![Installs](https://img.shields.io/visual-studio-marketplace/i/java-tools.java-properties-navigator)](https://marketplace.visualstudio.com/items?itemName=java-tools.java-properties-navigator)
-[![Rating](https://img.shields.io/visual-studio-marketplace/r/java-tools.java-properties-navigator)](https://marketplace.visualstudio.com/items?itemName=java-tools.java-properties-navigator)
+[![Version](https://img.shields.io/visual-studio-marketplace/v/pengge.java-properties-navigator)](https://marketplace.visualstudio.com/items?itemName=pengge.java-properties-navigator)
+[![Installs](https://img.shields.io/visual-studio-marketplace/i/pengge.java-properties-navigator)](https://marketplace.visualstudio.com/items?itemName=pengge.java-properties-navigator)
+[![Rating](https://img.shields.io/visual-studio-marketplace/r/pengge.java-properties-navigator)](https://marketplace.visualstudio.com/items?itemName=pengge.java-properties-navigator)
 
 **Intelligent navigation between Java code and configuration files**
 
@@ -39,7 +39,7 @@ Java Properties Navigator is a powerful VS Code extension that provides seamless
 3. Search for "Java Properties Navigator"
 4. Click **Install**
 
-Alternatively, install from the [Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=java-tools.java-properties-navigator).
+Alternatively, install from the [Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=pengge.java-properties-navigator).
 
 ## 🚀 Quick Start
 

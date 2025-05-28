@@ -2,9 +2,9 @@
 
 [English](README.md) | 中文
 
-[![Version](https://img.shields.io/visual-studio-marketplace/v/java-tools.java-properties-navigator)](https://marketplace.visualstudio.com/items?itemName=java-tools.java-properties-navigator)
-[![Installs](https://img.shields.io/visual-studio-marketplace/i/java-tools.java-properties-navigator)](https://marketplace.visualstudio.com/items?itemName=java-tools.java-properties-navigator)
-[![Rating](https://img.shields.io/visual-studio-marketplace/r/java-tools.java-properties-navigator)](https://marketplace.visualstudio.com/items?itemName=java-tools.java-properties-navigator)
+[![Version](https://img.shields.io/visual-studio-marketplace/v/pengge.java-properties-navigator)](https://marketplace.visualstudio.com/items?itemName=pengge.java-properties-navigator)
+[![Installs](https://img.shields.io/visual-studio-marketplace/i/pengge.java-properties-navigator)](https://marketplace.visualstudio.com/items?itemName=pengge.java-properties-navigator)
+[![Rating](https://img.shields.io/visual-studio-marketplace/r/pengge.java-properties-navigator)](https://marketplace.visualstudio.com/items?itemName=pengge.java-properties-navigator)
 
 **Java代码与配置文件之间的智能导航**
 
@@ -39,7 +39,7 @@ Java Properties Navigator 是一个强大的 VS Code 扩展，提供 Java 源代
 3. 搜索 "Java Properties Navigator"
 4. 点击 **安装**
 
-或者，从 [Visual Studio Code 应用商店](https://marketplace.visualstudio.com/items?itemName=java-tools.java-properties-navigator) 安装。
+或者，从 [Visual Studio Code 应用商店](https://marketplace.visualstudio.com/items?itemName=pengge.java-properties-navigator) 安装。
 
 ## 🚀 快速开始
 

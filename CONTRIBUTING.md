@@ -27,7 +27,7 @@ Pull requests are the best way to propose changes to the codebase. We actively w
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/java-tools/java-properties-navigator.git
+   git clone https://github.com/li-peng/java-properties-navigator.git
    cd java-properties-navigator
    ```
 
@@ -96,7 +96,7 @@ Pull requests are the best way to propose changes to the codebase. We actively w
 
 ## Reporting Bugs
 
-We use GitHub issues to track public bugs. Report a bug by [opening a new issue](https://github.com/java-tools/java-properties-navigator/issues).
+We use GitHub issues to track public bugs. Report a bug by [opening a new issue](https://github.com/li-peng/java-properties-navigator/issues).
 
 **Great Bug Reports** tend to have:
 
