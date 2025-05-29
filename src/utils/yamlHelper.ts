@@ -21,26 +21,9 @@ export function parseYamlFile(filePath: string): ConfigItem[] {
             console.warn(`无法解析YAML文件: ${filePath}`);
             return [];
         }
-        
-        // 将文本内容按行分割，用于确定行号
-        const lines = content.split('\n');
-        
-        // 保存每个键的行号
-        // 这不是100%准确，但足以满足大多数情况
-        const keyLineMap = new Map<string, number>();
-        
-        // 寻找键的位置
-        for (let i = 0; i < lines.length; i++) {
-            const line = lines[i].trim();
-            if (!line || line.startsWith('#')) continue;
-            
-            // 简单匹配形如 "key:"的模式
-            const match = line.match(/^([^:]+):/);
-            if (match) {
-                const key = match[1].trim();
-                keyLineMap.set(key, i);
-            }
-        }
+
+        // 构建完整的键路径到行号的映射
+        const keyLineMap = buildKeyLineMap(content);
         
         // 递归提取所有配置项
         const items: ConfigItem[] = [];
@@ -53,6 +36,81 @@ export function parseYamlFile(filePath: string): ConfigItem[] {
         console.error(`解析YAML文件 ${filePath} 时出错:`, error);
         return [];
     }
+}
+
+/**
+ * 构建完整键路径到行号的映射
+ * 解决相同键名在不同父级下的定位问题
+ * @param content YAML文件内容
+ * @returns 键路径到行号的映射
+ */
+function buildKeyLineMap(content: string): Map<string, number> {
+    const keyLineMap = new Map<string, number>();
+    const lines = content.split('\n');
+    const pathStack: string[] = [];
+    let lastIndentLevel = -1;
+
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        const trimmedLine = line.trim();
+        
+        // 跳过空行和注释
+        if (!trimmedLine || trimmedLine.startsWith('#')) {
+            continue;
+        }
+
+        // 计算当前行的缩进级别
+        const indentLevel = line.search(/\S/);
+        
+        // 检查是否是键值对
+        const match = trimmedLine.match(/^([^:]+):\s*(.*)?$/);
+        if (match) {
+            const key = match[1].trim();
+            const value = match[2]?.trim() || '';
+            
+            // 根据缩进级别调整路径栈
+            if (indentLevel > lastIndentLevel) {
+                // 缩进增加，保持当前路径
+            } else {
+                // 缩进减少或相等，需要调整路径栈
+                // 计算应该保留的层级数
+                let targetLevel = 0;
+                for (let j = i - 1; j >= 0; j--) {
+                    const prevLine = lines[j];
+                    const prevTrimmed = prevLine.trim();
+                    if (!prevTrimmed || prevTrimmed.startsWith('#')) continue;
+                    
+                    const prevIndent = prevLine.search(/\S/);
+                    if (prevIndent < indentLevel && prevLine.includes(':')) {
+                        targetLevel = Math.floor(prevIndent / 2) + 1; // 假设每级缩进2个空格
+                        break;
+                    }
+                }
+                
+                // 调整路径栈到正确的层级
+                pathStack.splice(targetLevel);
+            }
+            
+            // 添加当前键到路径栈
+            pathStack.push(key);
+            
+            // 构建完整路径
+            const fullPath = pathStack.join('.');
+            
+            // 记录路径到行号的映射（使用0-based行号）
+            keyLineMap.set(fullPath, i);
+            
+            // 更新最后的缩进级别
+            lastIndentLevel = indentLevel;
+            
+            // 如果是叶子节点（有值），则移除最后一个键
+            if (value && !value.startsWith('|') && !value.startsWith('>')) {
+                pathStack.pop();
+            }
+        }
+    }
+    
+    return keyLineMap;
 }
 
 /**
@@ -77,13 +135,13 @@ function extractConfigItems(
                 extractConfigItems(item, currentPath, keyLineMap, filePath, items);
             } else {
                 // 简单值，添加为配置项
-                const line = keyLineMap.get(parentPath) || 0;
+                const line = keyLineMap.get(currentPath) || 0;
                 items.push({
                     key: currentPath,
                     value: item,
                     line,
                     column: 0,
-                    length: String(parentPath).length,
+                    length: String(currentPath).length,
                     filePath,
                     fileType: 'yaml',
                     hasPlaceholders: false
@@ -100,8 +158,8 @@ function extractConfigItems(
         const value = obj[key];
         const currentPath = parentPath ? `${parentPath}.${key}` : key;
         
-        // 查找当前键的行号
-        let line = keyLineMap.get(key) || 0;
+        // 查找当前完整路径的行号
+        let line = keyLineMap.get(currentPath) || 0;
         
         if (typeof value === 'object' && value !== null) {
             // 添加当前节点
