@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { SpelExpressionAnalyzer } from './spelExpressionAnalyzer';
+import { SpringAnnotationAnalyzer } from './springAnnotationAnalyzer';
 
 /**
  * Java字符串分析器
@@ -74,25 +75,44 @@ export class JavaStringAnalyzer {
      * 尝试识别当前位置的字符串，判断是否是配置键
      */
     public static async analyzeStringAtPosition(document: vscode.TextDocument, position: vscode.Position): Promise<string | undefined> {
+        console.log(`[JavaStringAnalyzer] 开始分析位置 ${position.line}:${position.character}`);
+        
+        // 首先检查是否在Spring注解中
+        if (SpringAnnotationAnalyzer.isPositionInSpringAnnotation(document, position)) {
+            console.log(`[JavaStringAnalyzer] 检测到Spring注解，使用SpringAnnotationAnalyzer`);
+            // 如果在Spring注解中，直接返回Spring注解分析器的结果，不再执行后续逻辑
+            const result = SpringAnnotationAnalyzer.extractConfigKeyFromAnnotation(document, position) || undefined;
+            console.log(`[JavaStringAnalyzer] Spring注解分析结果: "${result}"`);
+            return result;
+        }
+        
+        console.log(`[JavaStringAnalyzer] 非Spring注解，使用常规字符串分析`);
+        
         // 获取当前行文本
         const line = document.lineAt(position.line).text;
         
         // 判断光标是否在字符串内
         if (!this.isInString(line, position.character)) {
+            console.log(`[JavaStringAnalyzer] 位置不在字符串内`);
             return undefined;
         }
         
         // 提取字符串内容
         const stringContent = this.extractStringAtPosition(line, position.character);
         if (!stringContent) {
+            console.log(`[JavaStringAnalyzer] 无法提取字符串内容`);
             return undefined;
         }
         
+        console.log(`[JavaStringAnalyzer] 提取的字符串内容: "${stringContent}"`);
+        
         // 检查是否是配置键引用 (比如 application.name, app.config.timeout等)
         if (this.isLikelyConfigKey(stringContent)) {
+            console.log(`[JavaStringAnalyzer] 识别为配置键: "${stringContent}"`);
             return stringContent;
         }
         
+        console.log(`[JavaStringAnalyzer] 不是配置键格式: "${stringContent}"`);
         return undefined;
     }
     
@@ -223,6 +243,11 @@ export class JavaStringAnalyzer {
      * 分析字符串上下文，判断是否可能是配置键
      */
     private static async isPossibleConfigKey(document: vscode.TextDocument, position: vscode.Position, key: string): Promise<boolean> {
+        // 检查是否在Spring注解中
+        if (SpringAnnotationAnalyzer.isPositionInSpringAnnotation(document, position)) {
+            return true;
+        }
+        
         // 检查是否在SpEL表达式中
         if (SpelExpressionAnalyzer.isPositionInSpelExpression(document, position)) {
             return true;
@@ -305,11 +330,11 @@ export class JavaStringAnalyzer {
         const configKeys = new Map<vscode.Position, string>();
         
         try {
-            // 1. 扫描所有SpEL注解
-            const spelAnnotations = await SpelExpressionAnalyzer.findSpelAnnotationsInDocument(document);
+            // 1. 扫描所有Spring注解
+            const springAnnotations = SpringAnnotationAnalyzer.findSpringAnnotationsInDocument(document);
             
-            // 将SpEL注解中的配置键添加到结果中
-            for (const [position, keys] of spelAnnotations.entries()) {
+            // 将Spring注解中的配置键添加到结果中
+            for (const [position, keys] of springAnnotations.entries()) {
                 if (keys.length > 0) {
                     configKeys.set(position, keys[0]);
                 }
@@ -329,8 +354,25 @@ export class JavaStringAnalyzer {
                     const startPos = match.index + 1; // +1 跳过开始引号
                     const position = new vscode.Position(i, startPos);
                     
-                    // 检查是否已经作为SpEL表达式处理过
+                    // 检查是否已经在Spring注解中处理过
+                    let alreadyProcessed = false;
+                    for (const [springPos] of springAnnotations.entries()) {
+                        if (springPos.line === i) {
+                            alreadyProcessed = true;
+                            break;
+                        }
+                    }
+                    
+                    if (alreadyProcessed) {
+                        continue;
+                    }
+                    
+                    // 检查是否是SpEL表达式（非注解中的）
                     if (SpelExpressionAnalyzer.containsSpelExpression(stringContent)) {
+                        const keys = SpelExpressionAnalyzer.extractKeysFromSpelExpression(stringContent);
+                        if (keys.length > 0) {
+                            configKeys.set(position, keys[0]);
+                        }
                         continue;
                     }
                     

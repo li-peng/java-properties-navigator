@@ -487,10 +487,20 @@ export class ConfigurationIndexManager {
      */
     private addPropertyLocation(key: string, location: PropertyLocation): void {
         if (!this.propertyLocations.has(key)) {
-            this.propertyLocations.set(key, []);
+            this.propertyLocations.set(key, [location]);
+        } else {
+            const existingLocations = this.propertyLocations.get(key)!;
+            const alreadyExists = existingLocations.some(existingLocation =>
+                existingLocation.filePath === location.filePath &&
+                existingLocation.line === location.line &&
+                existingLocation.column === location.column &&
+                existingLocation.environment === location.environment
+            );
+
+            if (!alreadyExists) {
+                existingLocations.push(location);
+            }
         }
-        
-        this.propertyLocations.get(key)?.push(location);
     }
     
     /**

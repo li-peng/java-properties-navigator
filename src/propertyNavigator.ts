@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { ConfigurationIndexManager, PropertyLocation } from './configIndex';
-import { JavaStringAnalyzer } from './javaStringAnalyzer';
+import { JavaStringAnalyzer } from './analyzer/javaStringAnalyzer';
 import { Logger } from './utils/logger';
 
 /**

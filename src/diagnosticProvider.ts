@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { ConfigurationIndexManager } from './configIndex';
-import { JavaStringAnalyzer } from './javaStringAnalyzer';
+import { JavaStringAnalyzer } from './analyzer/javaStringAnalyzer';
 
 /**
  * 诊断提供程序
