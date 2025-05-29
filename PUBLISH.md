@@ -6,7 +6,7 @@ This document outlines the steps to publish the extension to the Visual Studio C
 
 ## Pre-Publishing Checklist
 
-### âœ?Completed Items
+### Completed Items
 
 - [x] **Extension renamed** from "Java Properties Definition" to "Java Properties Navigator"
 - [x] **Professional README** with comprehensive documentation
@@ -21,7 +21,7 @@ This document outlines the steps to publish the extension to the Visual Studio C
 - [x] **Extension compiled** successfully
 - [x] **VSIX package** created successfully
 
-### ðŸ”„ Pending Items
+### Pending Items
 
 - [ ] **Extension Icon** (128x128 PNG)
   - Create or obtain a professional icon
@@ -130,7 +130,7 @@ Current keywords in `package.json`:
 
 ## Version Management
 
-### Current Version: 1.0.0
+### Current Version: 1.0.1
 
 ### Future Versions
 
