@@ -5,12 +5,12 @@ All notable changes to the "Java Properties Navigator" extension will be documen
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.0.1] - 2024-12-20
+## [1.0.1] - 2025-06-02
 
 ### Changed
-- 版本号更新到1.0.1
+- Support for locating configuration properties of Spring @Value annotation
 
-## [1.0.0] - 2024-05-26
+## [1.0.0] - 2025-05-26
 
 ### Added
 - 🎯 Smart property key detection in Java code
