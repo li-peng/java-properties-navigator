@@ -170,12 +170,12 @@ export class SpelExpressionAnalyzer {
         // 在实际场景中，这里需要更复杂的解析逻辑来处理SpEL表达式
         
         // 如果表达式简单，直接返回
-        if (!/[+\-*\/\(\):]/.test(expression)) {
+        if (!/[+*\/\(\):]/.test(expression)) {
             return expression.trim();
         }
         
         // 否则尝试找到光标附近的属性引用
-        const parts = expression.split(/[+\-*\/\(\),:]/);
+        const parts = expression.split(/[+*\/\(\),:]/);
         for (const part of parts) {
             const trimmed = part.trim();
             if (trimmed && expression.indexOf(part) <= position && 
@@ -197,14 +197,14 @@ export class SpelExpressionAnalyzer {
         // 在实际场景中，这里需要更复杂的解析逻辑来处理复杂的SpEL表达式
         
         // 如果表达式简单，直接返回
-        if (!/[+\-*\/\(\):]/.test(expression)) {
+        if (!/[+*\/\(\):]/.test(expression)) {
             return [expression.trim()];
         }
         
         // 否则尝试提取所有可能的属性引用
-        const parts = expression.split(/[+\-*\/\(\),:]/);
+        const parts = expression.split(/[+*\/\(\),:]/);
         return parts
             .map(part => part.trim())
-            .filter(part => part && /^[a-zA-Z0-9._]+$/.test(part));
+            .filter(part => part && /^[a-zA-Z0-9._-]+$/.test(part));
     }
 } 

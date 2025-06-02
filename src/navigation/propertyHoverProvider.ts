@@ -29,7 +29,10 @@ export class PropertyHoverProvider implements vscode.HoverProvider {
                 return undefined;
             }
             
+            console.log(`[PropertyHoverProvider] 开始分析位置: ${position.line}:${position.character}`);
+            
             let propertyKey: string | undefined;
+            let keySource: string = 'unknown';
             
             // 先检查是否有选中文本
             const editor = vscode.window.activeTextEditor;
@@ -40,25 +43,28 @@ export class PropertyHoverProvider implements vscode.HoverProvider {
                 selection.contains(position)) {
                 // 获取选中的文本
                 const selectedText = document.getText(selection);
+                console.log(`[PropertyHoverProvider] 检测到选中文本: "${selectedText}"`);
                 
-                // 验证选中文本是否是有效的Java字符串
-                if (await this.isValidJavaString(document, selection, selectedText)) {
-                    propertyKey = selectedText;
-                } else {
-                    // 如果不是有效的Java字符串，返回undefined
-                    return undefined;
-                }
+                // 验证选中文本是否是有效的Java字符串，并返回检测到的配置键
+                propertyKey = await this.getValidJavaStringKey(document, selection, selectedText);
+                keySource = 'selection';
             } else {
                 // 否则使用高级版本的字符串分析
+                console.log(`[PropertyHoverProvider] 使用JavaStringAnalyzer分析位置`);
                 propertyKey = await JavaStringAnalyzer.analyzeStringAtPosition(document, position);
+                keySource = 'analyzer';
             }
             
+            console.log(`[PropertyHoverProvider] 检测到配置键: "${propertyKey}" (来源: ${keySource})`);
+            
             if (!propertyKey || !this.indexManager.hasProperty(propertyKey)) {
+                console.log(`[PropertyHoverProvider] 配置键无效或不存在: "${propertyKey}"`);
                 return undefined;
             }
             
             // 查找配置键的位置信息
             const locations = this.indexManager.findPropertyLocations(propertyKey);
+            console.log(`[PropertyHoverProvider] 找到 ${locations.length} 个配置位置`);
             
             if (locations.length === 0) {
                 return undefined;
@@ -75,6 +81,8 @@ export class PropertyHoverProvider implements vscode.HoverProvider {
                 })
             );
             
+            console.log(`[PropertyHoverProvider] 准备显示配置值，总数: ${propertyValues.length}`);
+            
             // 构建悬停内容
             return this.buildHoverContent(propertyKey, propertyValues);
         } catch (error) {
@@ -84,38 +92,62 @@ export class PropertyHoverProvider implements vscode.HoverProvider {
     }
     
     /**
-     * 验证选中文本是否是有效的Java字符串
+     * 验证选中文本是否是有效的Java字符串，并返回检测到的配置键
      * 检查1：确保选中的文本是完整的Java字符串
      * 检查2：确保选中的文本不在注释中
      * 检查3：确保选中的文本不是变量名
      */
-    private async isValidJavaString(
+    private async getValidJavaStringKey(
         document: vscode.TextDocument, 
         selection: vscode.Selection, 
         selectedText: string
-    ): Promise<boolean> {
+    ): Promise<string | undefined> {
         try {
-            // 计算选区中间点位置
-            const midLine = Math.floor((selection.start.line + selection.end.line) / 2);
-            const midChar = selection.start.line === selection.end.line ? 
-                Math.floor((selection.start.character + selection.end.character) / 2) : 
-                Math.floor(document.lineAt(midLine).text.length / 2);
-            const midPosition = new vscode.Position(midLine, midChar);
+            console.log(`[PropertyHoverProvider] 验证选中文本: "${selectedText}"`);
             
-            // 使用JavaStringAnalyzer检查中间点位置的字符串
-            const detectedString = await JavaStringAnalyzer.analyzeStringAtPosition(document, midPosition);
-            
-            // 如果没有检测到字符串，则选中的文本不是有效的Java字符串
-            if (!detectedString) {
-                return false;
+            // 检查选中的文本是否看起来像配置键
+            if (!this.isLikelyConfigKey(selectedText)) {
+                console.log(`[PropertyHoverProvider] 选中文本不像配置键: "${selectedText}"`);
+                return undefined;
             }
             
-            // 检查选中的文本是否与检测到的字符串完全匹配
-            return detectedString === selectedText;
+            // 检查选中的文本是否在字符串字面量中
+            const startLine = document.lineAt(selection.start.line).text;
+            const startChar = selection.start.character;
+            
+            // 简单检查：确保选中的文本前后有引号
+            if (startChar > 0 && startLine[startChar - 1] === '"' && 
+                selection.end.character < startLine.length && startLine[selection.end.character] === '"') {
+                console.log(`[PropertyHoverProvider] 验证通过，选中文本在引号内: "${selectedText}"`);
+                return selectedText;
+            }
+            
+            console.log(`[PropertyHoverProvider] 选中文本不在引号内: "${selectedText}"`);
+            return undefined;
         } catch (error) {
             console.error('验证Java字符串时出错:', error);
+            return undefined;
+        }
+    }
+    
+    /**
+     * 判断字符串是否像配置键
+     */
+    private isLikelyConfigKey(str: string): boolean {
+        if (!str || str.length === 0) {
             return false;
         }
+        
+        // 配置键通常包含点号分隔的层级结构
+        if (str.includes('.')) {
+            // 检查是否符合配置键的命名模式
+            const configKeyPattern = /^[a-zA-Z][a-zA-Z0-9._-]*[a-zA-Z0-9]$/;
+            return configKeyPattern.test(str);
+        }
+        
+        // 单层配置键也可能存在
+        const singleKeyPattern = /^[a-zA-Z][a-zA-Z0-9_-]*$/;
+        return singleKeyPattern.test(str);
     }
     
     /**
@@ -157,6 +189,11 @@ export class PropertyHoverProvider implements vscode.HoverProvider {
         propertyKey: string, 
         propertyValues: Array<{ location: PropertyLocation; value: string }>
     ): vscode.Hover {
+        console.log(`[PropertyHoverProvider] 构建悬停内容，配置键: "${propertyKey}", 值数量: ${propertyValues.length}`);
+        propertyValues.forEach((item, index) => {
+            console.log(`[PropertyHoverProvider] 值${index + 1}: "${item.value}" 来自 ${item.location.filePath}:${item.location.line}`);
+        });
+        
         // 构建markdown内容
         const markdownContent = new vscode.MarkdownString();
         markdownContent.isTrusted = true;
@@ -208,6 +245,7 @@ export class PropertyHoverProvider implements vscode.HoverProvider {
             });
         }
         
+        console.log(`[PropertyHoverProvider] 悬停内容构建完成`);
         return new vscode.Hover(markdownContent);
     }
 } 

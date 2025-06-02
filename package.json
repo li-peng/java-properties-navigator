@@ -2,7 +2,7 @@
   "name": "java-properties-navigator",
   "displayName": "Java Properties Navigator",
   "description": "Intelligent navigation between Java code and configuration files. Jump from property keys in Java code to their definitions in .properties, .yml, and .yaml files.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "publisher": "pengge",
   "license": "MIT",
   "engines": {

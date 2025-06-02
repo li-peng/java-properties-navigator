@@ -33,7 +33,7 @@ export class PersistentIndex {
     private static readonly METADATA_FILE_NAME = 'java-properties-index-meta.json';
     
     // 索引版本，当索引结构发生变化时需要更新
-    private static readonly CURRENT_VERSION = '1.0.0';
+    private static readonly CURRENT_VERSION = '1.0.1';
     
     // Trie索引实例
     private trieIndex: TrieIndex;
