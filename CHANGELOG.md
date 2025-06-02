@@ -5,10 +5,31 @@ All notable changes to the "Java Properties Navigator" extension will be documen
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.0.1] - 2025-06-02
+## [1.1.0] - 2025-06-02
 
-### Changed
-- Support for locating configuration properties of Spring @Value annotation
+### Added
+- 🎯 **Enhanced Spring @Value Support**: Improved detection and navigation for Spring @Value annotations
+- 🔍 **Advanced Property Detection**: Better parsing of complex property expressions within @Value annotations
+- 📊 **Spring Boot Integration**: Enhanced support for Spring Boot configuration patterns
+- ⚡ **Performance Improvements**: Optimized property indexing for large Spring projects
+
+### Enhanced
+- 💡 **Hover Information**: Enhanced hover details for @Value annotated properties
+- 🎮 **Navigation Experience**: Smoother navigation from @Value annotations to property definitions
+- 🔧 **Configuration Detection**: Better handling of nested property expressions
+
+### Technical Improvements
+- Improved regex patterns for @Value annotation detection
+- Enhanced YAML/Properties parsing for complex Spring configurations
+- Better error handling for malformed property expressions
+- Optimized index rebuilding for Spring Boot projects
+
+## [1.0.1] - 2025-05-30
+
+### Fixed
+- 🐛 Bug fixes and stability improvements
+- 📝 Documentation updates and examples
+- ⚙️ Configuration validation enhancements
 
 ## [1.0.0] - 2025-05-26
 

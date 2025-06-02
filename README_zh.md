@@ -6,24 +6,27 @@
 [![Installs](https://img.shields.io/visual-studio-marketplace/i/pengge.java-properties-navigator)](https://marketplace.visualstudio.com/items?itemName=pengge.java-properties-navigator)
 [![Rating](https://img.shields.io/visual-studio-marketplace/r/pengge.java-properties-navigator)](https://marketplace.visualstudio.com/items?itemName=pengge.java-properties-navigator)
 
-**Java代码与配置文件之间的智能导航**
+**Java代码与配置文件之间的智能导航，增强Spring @Value注解支持**
 
-Java Properties Navigator 是一个强大的 VS Code 扩展，提供 Java 源代码与配置文件之间的无缝导航。从 Java 代码中的属性键瞬间跳转到 `.properties`、`.yml` 和 `.yaml` 文件中的定义。
+Java Properties Navigator 是一个强大的 VS Code 扩展，提供 Java 源代码与配置文件之间的无缝导航。从 Java 代码中的属性键瞬间跳转到 `.properties`、`.yml` 和 `.yaml` 文件中的定义。现在增强支持Spring @Value注解！
 
 ## ✨ 功能特性
 
 ### 🎯 智能属性检测
 - **自动识别**：智能检测 Java 字符串中的属性键
-- **上下文感知**：支持变量、方法参数和注解
+- **Spring @Value支持**：增强的Spring @Value注解检测和导航，支持复杂表达式
+- **上下文感知**：支持变量、方法参数、注解和Spring Boot配置
 - **多格式支持**：支持 `.properties`、`.yml` 和 `.yaml` 文件
 
 ### 🚀 即时导航
 - **一键跳转**：右键点击任意属性键即可跳转到定义
+- **@Value注解支持**：直接从@Value("${property.key}")导航到属性定义
 - **快捷键支持**：使用 `Alt+Shift+P` (Windows/Linux) 或 `Cmd+Shift+P` (macOS) 快速导航
 - **多位置支持**：当属性存在于不同文件中时可选择跳转位置
 
 ### 💡 增强开发体验
 - **悬停信息**：无需离开 Java 代码即可查看属性值
+- **Spring Boot集成**：增强的Spring Boot配置模式支持
 - **状态栏集成**：快速访问重建索引和扩展状态
 - **实时更新**：配置文件更改时自动刷新
 
@@ -31,6 +34,7 @@ Java Properties Navigator 是一个强大的 VS Code 扩展，提供 Java 源代
 - **灵活扫描**：自定义扫描目录和文件类型
 - **智能排除**：排除构建目录、node_modules 和其他无关路径
 - **环境支持**：处理多环境配置（开发、生产、测试）
+- **Spring Profile支持**：跨不同Spring配置文件导航属性
 
 ## 📦 安装
 
@@ -51,19 +55,35 @@ Java Properties Navigator 是一个强大的 VS Code 扩展，提供 Java 源代
 ### 使用示例
 
 ```java
-// Java 代码
-
- @Value("${spring.application.name}")
- private String applicationName;
-
- public void test(){
-        String appName = getConfig("spring.application.name");
-        String local =getConfig("local") ;
-        System.out.println(appName);
-        System.out.println(local);
- }
- 
+// 带有Spring @Value注解的Java代码
+@Component
+public class ApplicationConfig {
+    
+    @Value("${spring.application.name}")
+    private String applicationName;
+    
+    @Value("${server.port:8080}")
+    private int serverPort;
+    
+    @Value("${app.feature.enabled:false}")
+    private boolean featureEnabled;
+    
+    @Value("${app.database.url}")
+    private String databaseUrl;
+    
+    public void configureApplication() {
+        String configPath = getConfig("spring.config.location");
+        String profile = getConfig("spring.profiles.active");
+        String logLevel = getConfig("logging.level.root");
+    }
+}
 ```
+
+**v1.1.0新功能**：增强的Spring @Value注解支持，包括：
+- 复杂属性表达式如 `${property.name:defaultValue}`
+- 嵌套属性引用
+- Spring Boot配置模式
+- 环境特定属性导航
 
 ![演示图片 1](docs/images/demo1.png)
 
@@ -71,7 +91,7 @@ Java Properties Navigator 是一个强大的 VS Code 扩展，提供 Java 源代
 
 ![演示图片 3](docs/images/demo3.png)
 
-扩展将帮助您从 `"server.port"` 和 `"welcome.message"` 导航到配置文件中的定义。
+扩展将帮助您从Spring @Value注解和属性字符串导航到配置文件中的定义。
 
 ## ⚙️ 配置
 
