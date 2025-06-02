@@ -1,8 +1,8 @@
 {
   "name": "java-properties-navigator",
   "displayName": "Java Properties Navigator",
-  "description": "Intelligent navigation between Java code and configuration files. Jump from property keys in Java code to their definitions in .properties, .yml, and .yaml files.",
-  "version": "1.0.1",
+  "description": "Intelligent navigation between Java code and configuration files. Jump from property keys in Java code (including Spring @Value annotations) to their definitions in .properties, .yml, and .yaml files.",
+  "version": "1.1.0",
   "publisher": "pengge",
   "license": "MIT",
   "engines": {
@@ -31,7 +31,12 @@
     "yml",
     "jump to definition",
     "spring boot",
-    "config"
+    "config",
+    "@Value",
+    "annotation",
+    "dependency injection",
+    "value annotation",
+    "spring properties"
   ],
   "categories": [
     "Programming Languages",

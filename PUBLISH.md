@@ -4,7 +4,49 @@ English | [中文](PUBLISH_zh.md)
 
 This document outlines the steps to publish the extension to the Visual Studio Code Marketplace.
 
+## Version 1.1.0 Release Notes
+
+### 🎯 New Features
+- **Enhanced Spring @Value Support**: Improved detection and navigation for Spring @Value annotations
+- **Advanced Property Detection**: Better parsing of complex property expressions within @Value annotations  
+- **Spring Boot Integration**: Enhanced support for Spring Boot configuration patterns
+- **Performance Improvements**: Optimized property indexing for large Spring projects
+
+### 🔧 Technical Enhancements
+- Improved regex patterns for @Value annotation detection
+- Enhanced YAML/Properties parsing for complex Spring configurations
+- Better error handling for malformed property expressions
+- Optimized index rebuilding for Spring Boot projects
+
 ## Pre-Publishing Checklist
+
+### Completed Items for v1.1.0
+
+- [x] **Version updated** to 1.1.0 in package.json
+- [x] **Description enhanced** with Spring @Value support mention
+- [x] **CHANGELOG.md** updated with v1.1.0 features
+- [x] **README.md** updated with Spring @Value examples and features
+- [x] **README_zh.md** updated with Chinese documentation
+- [x] **Extension functionality** enhanced for Spring annotations
+- [x] **Gallery banner** configured with professional colors
+- [x] **Keywords** include Spring-related terms for better discoverability
+
+### Updated Keywords for Better Discovery
+
+Current keywords in `package.json`:
+- java
+- properties  
+- spring
+- configuration
+- navigation
+- yaml
+- yml
+- jump to definition
+- spring boot
+- config
+- **@Value** (new)
+- **annotation** (new)
+- **dependency injection** (new)
 
 ### Completed Items
 
@@ -130,55 +172,112 @@ Current keywords in `package.json`:
 
 ## Version Management
 
-### Current Version: 1.0.1
+### Current Version: 1.1.0
+
+### Version History
+- **1.0.0**: Initial release with basic property navigation
+- **1.0.1**: Bug fixes and stability improvements  
+- **1.1.0**: Enhanced Spring @Value annotation support
 
 ### Future Versions
 
-- **1.0.1**: Bug fixes and minor improvements
-- **1.1.0**: New features (reverse navigation, etc.)
-- **1.2.0**: Enhanced YAML support
-- **2.0.0**: Major feature additions
+- **1.1.1**: Bug fixes for Spring @Value parsing edge cases
+- **1.2.0**: Reverse navigation (find property usages)
+- **1.3.0**: Spring Profile-aware navigation
+- **2.0.0**: Multi-language support and advanced Spring features
+
+## Publishing Steps for v1.1.0
+
+### 1. Pre-flight Checks
+
+```bash
+# Verify version consistency
+grep -r "1.1.0" package.json CHANGELOG.md
+
+# Compile and test
+npm run compile
+npm test
+
+# Package extension  
+vsce package
+```
+
+### 2. Update Marketplace Description
+
+Ensure marketplace listing highlights:
+- ✅ Spring @Value annotation support
+- ✅ Complex property expression parsing  
+- ✅ Spring Boot configuration integration
+- ✅ Enhanced developer productivity
+
+### 3. Publish to Marketplace
+
+```bash
+# Login to publisher account
+vsce login pengge
+
+# Publish new version
+vsce publish 1.1.0
+```
+
+### 4. Post-Publishing Tasks
+
+- [ ] Create GitHub release v1.1.0 with VSIX file
+- [ ] Update marketplace screenshots with @Value examples
+- [ ] Share v1.1.0 announcement in Spring community
+- [ ] Monitor for user feedback on new features
+
+## Marketing for v1.1.0
+
+### Key Messaging
+- "Now with enhanced Spring @Value support!"
+- "Navigate from @Value annotations to property definitions"
+- "Better Spring Boot development experience"
+- "Improved productivity for Spring developers"
+
+### Target Audience
+- Spring Boot developers
+- Java enterprise developers  
+- Microservices architects
+- Configuration management teams
+
+### Community Outreach
+- [ ] Post in Spring Boot subreddit
+- [ ] Share on Java developer Discord/Slack channels
+- [ ] Tweet about new @Value support features
+- [ ] Write blog post: "Improved Spring Development with Java Properties Navigator v1.1.0"
+
+## Success Metrics for v1.1.0
+
+### Target Goals (First Month)
+- [ ] 500+ new downloads
+- [ ] Positive feedback on Spring @Value features
+- [ ] No critical bugs reported
+- [ ] 4.5+ star rating maintained
+
+### Key Performance Indicators
+- Download growth rate
+- User retention
+- Feature usage analytics (if available)
+- Community feedback sentiment
 
 ## Support and Maintenance
 
-### Issue Tracking
+### Known Issues to Monitor
+- Complex @Value expressions with SpEL
+- Edge cases in nested property references
+- Performance with very large Spring projects
 
+### Community Support
 - GitHub Issues for bug reports
 - Feature requests via GitHub
 - Q&A support via marketplace
-
-### Update Schedule
-
-- Bug fixes: As needed
-- Minor features: Monthly
-- Major features: Quarterly
-
-## Marketplace Guidelines Compliance
-
-- [x] Extension follows VS Code extension guidelines
-- [x] No trademark violations
-- [x] Appropriate content rating
-- [x] Clear functionality description
-- [x] Professional presentation
-
-## Success Metrics
-
-### Target Goals (First 6 Months)
-
-- [ ] 1,000+ downloads
-- [ ] 4.5+ star rating
-- [ ] 10+ positive reviews
-- [ ] Active community engagement
-
-### Long-term Goals (1 Year)
-
-- [ ] 10,000+ downloads
-- [ ] Featured in VS Code extension recommendations
-- [ ] Integration with popular Java frameworks
-- [ ] Community contributions
+- Active monitoring of Spring community feedback
 
 ---
 
-**Ready to publish!** 🚀
+**Ready for v1.1.0 publication!** 🚀
+
+The extension now provides comprehensive Spring @Value annotation support, making it an essential tool for Spring Boot developers.
 
 Once the icon is added, the extension will be ready for marketplace publication. 

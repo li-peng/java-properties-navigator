@@ -6,24 +6,27 @@ English | [中文](README_zh.md)
 [![Installs](https://img.shields.io/visual-studio-marketplace/i/pengge.java-properties-navigator)](https://marketplace.visualstudio.com/items?itemName=pengge.java-properties-navigator)
 [![Rating](https://img.shields.io/visual-studio-marketplace/r/pengge.java-properties-navigator)](https://marketplace.visualstudio.com/items?itemName=pengge.java-properties-navigator)
 
-**Intelligent navigation between Java code and configuration files**
+**Intelligent navigation between Java code and configuration files with enhanced Spring @Value support**
 
-Java Properties Navigator is a powerful VS Code extension that provides seamless navigation between Java source code and configuration files. Jump instantly from property keys in your Java code to their definitions in `.properties`, `.yml`, and `.yaml` files.
+Java Properties Navigator is a powerful VS Code extension that provides seamless navigation between Java source code and configuration files. Jump instantly from property keys in your Java code to their definitions in `.properties`, `.yml`, and `.yaml` files. Now with enhanced support for Spring @Value annotations!
 
 ## ✨ Features
 
 ### 🎯 Smart Property Detection
 - **Automatic Recognition**: Intelligently detects property keys in Java strings
-- **Context-Aware**: Works with variables, method parameters, and annotations
+- **Spring @Value Support**: Enhanced detection and navigation for Spring @Value annotations with complex expressions
+- **Context-Aware**: Works with variables, method parameters, annotations, and Spring Boot configurations
 - **Multi-Format Support**: Supports `.properties`, `.yml`, and `.yaml` files
 
 ### 🚀 Instant Navigation
 - **One-Click Jump**: Right-click on any property key to jump to its definition
+- **@Value Annotation Support**: Navigate directly from @Value("${property.key}") to property definitions
 - **Keyboard Shortcuts**: Quick navigation with `Alt+Shift+P` (Windows/Linux) or `Cmd+Shift+P` (macOS)
 - **Multi-Location Support**: Choose from multiple definitions when properties exist in different files
 
 ### 💡 Enhanced Developer Experience
 - **Hover Information**: See property values on hover without leaving your Java code
+- **Spring Boot Integration**: Enhanced support for Spring Boot configuration patterns
 - **Status Bar Integration**: Quick access to rebuild index and extension status
 - **Real-time Updates**: Automatically refreshes when configuration files change
 
@@ -31,6 +34,7 @@ Java Properties Navigator is a powerful VS Code extension that provides seamless
 - **Flexible Scanning**: Customize which directories and file types to include
 - **Smart Exclusions**: Exclude build directories, node_modules, and other irrelevant paths
 - **Environment Support**: Handle multiple environment configurations (dev, prod, test)
+- **Spring Profile Support**: Navigate properties across different Spring profiles
 
 ## 📦 Installation
 
@@ -51,27 +55,43 @@ Alternatively, install from the [Visual Studio Code Marketplace](https://marketp
 ### Example Usage
 
 ```java
-// Java code
- @Value("${spring.application.name}")
- private String applicationName;
-
- public void test(){
-        String appName = getConfig("spring.application.name");
-        String local =getConfig("local") ;
-        System.out.println(appName);
-        System.out.println(local);
- }
- 
+// Java code with Spring @Value annotations
+@Component
+public class ApplicationConfig {
+    
+    @Value("${spring.application.name}")
+    private String applicationName;
+    
+    @Value("${server.port:8080}")
+    private int serverPort;
+    
+    @Value("${app.feature.enabled:false}")
+    private boolean featureEnabled;
+    
+    @Value("${app.database.url}")
+    private String databaseUrl;
+    
+    public void configureApplication() {
+        String configPath = getConfig("spring.config.location");
+        String profile = getConfig("spring.profiles.active");
+        String logLevel = getConfig("logging.level.root");
+    }
+}
 ```
+
+**New in v1.1.0**: Enhanced support for Spring @Value annotations with:
+- Complex property expressions like `${property.name:defaultValue}`
+- Nested property references
+- Spring Boot configuration patterns
+- Environment-specific property navigation
 
 ![Demo 1](docs/images/demo1.png)
 
 ![Demo 2](docs/images/demo2.png)
 
-![Demo 2](docs/images/demo3.png)
+![Demo 3](docs/images/demo3.png)
 
-
-The extension will help you navigate from `"server.port"` and `"welcome.message"` to their definitions in your configuration files.
+The extension will help you navigate from Spring @Value annotations and property strings to their definitions in your configuration files.
 
 ## ⚙️ Configuration
 
