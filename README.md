@@ -52,6 +52,9 @@ Alternatively, install from the [Visual Studio Code Marketplace](https://marketp
 
 ```java
 // Java code
+ @Value("${spring.application.name}")
+ private String applicationName;
+
  public void test(){
         String appName = getConfig("spring.application.name");
         String local =getConfig("local") ;
@@ -64,6 +67,9 @@ Alternatively, install from the [Visual Studio Code Marketplace](https://marketp
 ![Demo 1](docs/images/demo1.png)
 
 ![Demo 2](docs/images/demo2.png)
+
+![Demo 2](docs/images/demo3.png)
+
 
 The extension will help you navigate from `"server.port"` and `"welcome.message"` to their definitions in your configuration files.
 

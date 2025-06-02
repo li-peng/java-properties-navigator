@@ -52,6 +52,10 @@ Java Properties Navigator 是一个强大的 VS Code 扩展，提供 Java 源代
 
 ```java
 // Java 代码
+
+ @Value("${spring.application.name}")
+ private String applicationName;
+
  public void test(){
         String appName = getConfig("spring.application.name");
         String local =getConfig("local") ;
@@ -64,6 +68,8 @@ Java Properties Navigator 是一个强大的 VS Code 扩展，提供 Java 源代
 ![演示图片 1](docs/images/demo1.png)
 
 ![演示图片 2](docs/images/demo2.png)
+
+![演示图片 3](docs/images/demo3.png)
 
 扩展将帮助您从 `"server.port"` 和 `"welcome.message"` 导航到配置文件中的定义。
 
