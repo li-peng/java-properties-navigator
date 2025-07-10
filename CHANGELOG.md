@@ -5,6 +5,28 @@ All notable changes to the "Java Properties Navigator" extension will be documen
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2025-01-XX
+
+### Added
+- 📝 **Enhanced Scan Logging**: Added detailed logging for directory and file scanning operations
+- 🔍 **Absolute Path Support**: Configuration now supports absolute paths in scanDirectories setting
+- 📊 **Scan Progress Tracking**: Real-time logging of scanning progress and file counts
+
+### Enhanced
+- 🔧 **Configuration Flexibility**: Improved support for complex project structures with absolute paths
+- 📋 **Debugging Support**: More detailed logging for troubleshooting scanning issues
+
+### Example Configuration
+```json
+{
+  "java-properties-navigator.scanDirectories": [
+    "src/main/resources",
+    "D:/myworkspace/demo/src/main/resources",
+    "**/src/main/resources"
+  ]
+}
+```
+
 ## [1.1.0] - 2025-06-02
 
 ### Added

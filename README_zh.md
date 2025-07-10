@@ -139,6 +139,37 @@ public class ApplicationConfig {
 }
 ```
 
+### 高级配置示例
+
+#### 使用绝对路径
+```json
+{
+  "java-properties-navigator.scanDirectories": [
+    "src/main/resources",
+    "D:/myworkspace/demo/src/main/resources",
+    "/home/user/projects/config",
+    "**/src/main/resources"
+  ]
+}
+```
+
+#### 混合路径配置
+```json
+{
+  "java-properties-navigator.scanDirectories": [
+    "src/main/resources",
+    "config/**",
+    "C:/SharedConfig/properties",
+    "**/src/main/resources"
+  ]
+}
+```
+
+**注意**：
+- 绝对路径必须存在于本地文件系统
+- 支持Windows、Linux和macOS的路径格式
+- 可以混合使用相对路径和绝对路径
+
 ## 🎮 命令
 
 | 命令 | 描述 | 快捷键 |
