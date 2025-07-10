@@ -118,7 +118,11 @@ export class ConfigurationIndexManager {
         let totalFilesScanned = 0;
         
         for (const folder of vscode.workspace.workspaceFolders) {
-            this.logger.debug('扫描工作区文件夹', { folderPath: folder.uri.fsPath });
+            this.logger.info('开始扫描工作区文件夹', { 
+                folderName: folder.name, 
+                folderPath: folder.uri.fsPath,
+                scanDirectories: scanDirs 
+            });
             
             for (const scanDir of scanDirs) {
                 // 处理通配符模式
@@ -127,13 +131,21 @@ export class ConfigurationIndexManager {
                     const scannedCount = await this.scanWithWildcard(folder.uri.fsPath, pattern, fileExtensions, excludePatterns);
                     totalFilesScanned += scannedCount;
                 } else {
-                    // 处理直接路径
-                    const dirPath = path.join(folder.uri.fsPath, scanDir);
+                    // 处理直接路径 - 支持绝对路径和相对路径
+                    let dirPath: string;
+                    if (path.isAbsolute(scanDir)) {
+                        dirPath = scanDir;
+                        this.logger.info('使用绝对路径扫描', { scanDir });
+                    } else {
+                        dirPath = path.join(folder.uri.fsPath, scanDir);
+                        this.logger.debug('使用相对路径扫描', { scanDir, resolvedPath: dirPath });
+                    }
+                    
                     if (fs.existsSync(dirPath)) {
                         const scannedCount = await this.scanDirectory(dirPath, fileExtensions, excludePatterns);
                         totalFilesScanned += scannedCount;
                     } else {
-                        this.logger.debug('扫描目录不存在', { dirPath });
+                        this.logger.debug('扫描目录不存在', { dirPath, isAbsolute: path.isAbsolute(scanDir) });
                     }
                 }
             }
@@ -209,7 +221,16 @@ export class ConfigurationIndexManager {
         // 构建基于扫描目录的监听模式
         const patterns: string[] = [];
         for (const scanDir of scanDirectories) {
-            const normalizedScanDir = scanDir.replace(/\\/g, '/');
+            let normalizedScanDir: string;
+            
+            if (path.isAbsolute(scanDir)) {
+                // 对于绝对路径，直接使用
+                normalizedScanDir = scanDir.replace(/\\/g, '/');
+            } else {
+                // 对于相对路径，使用现有逻辑
+                normalizedScanDir = scanDir.replace(/\\/g, '/');
+            }
+            
             for (const ext of fileExtensions) {
                 patterns.push(`${normalizedScanDir}/**/*${ext}`);
             }
@@ -314,6 +335,7 @@ export class ConfigurationIndexManager {
      * 扫描目录中的配置文件
      */
     private async scanDirectory(dirPath: string, extensions: string[], excludePatterns: string[]): Promise<number> {
+        this.logger.info('扫描目录开始', { dirPath, expectedExtensions: extensions });
         const entries = fs.readdirSync(dirPath, { withFileTypes: true });
         let filesScanned = 0;
         
@@ -334,6 +356,7 @@ export class ConfigurationIndexManager {
             }
         }
         
+        this.logger.info('扫描目录完成', { dirPath, filesScanned });
         return filesScanned;
     }
     
@@ -407,12 +430,23 @@ export class ConfigurationIndexManager {
             return false;
         }
 
-        const workspaceRoot = vscode.workspace.workspaceFolders[0].uri.fsPath;
-        const relativePath = path.relative(workspaceRoot, filePath);
-        const normalizedRelativePath = relativePath.replace(/\\/g, '/');
-
         for (const scanDir of scanDirectories) {
             const normalizedScanDir = scanDir.replace(/\\/g, '/');
+            const normalizedFilePath = filePath.replace(/\\/g, '/');
+            
+            // 处理绝对路径
+            if (path.isAbsolute(scanDir)) {
+                const normalizedAbsoluteScanDir = path.resolve(scanDir).replace(/\\/g, '/');
+                if (normalizedFilePath.startsWith(normalizedAbsoluteScanDir)) {
+                    return true;
+                }
+                continue;
+            }
+            
+            // 处理相对路径的现有逻辑
+            const workspaceRoot = vscode.workspace.workspaceFolders[0].uri.fsPath;
+            const relativePath = path.relative(workspaceRoot, filePath);
+            const normalizedRelativePath = relativePath.replace(/\\/g, '/');
             
             // 处理通配符模式 **/src/main/resources
             if (normalizedScanDir.startsWith('**/')) {
@@ -435,6 +469,7 @@ export class ConfigurationIndexManager {
      */
     private async scanFile(filePath: string): Promise<void> {
         try {
+            this.logger.debug('扫描文件', { filePath, fileExtension: path.extname(filePath) });
             const content = fs.readFileSync(filePath, 'utf8');
             const fileUri = vscode.Uri.file(filePath);
             const filename = path.basename(filePath);
@@ -477,6 +512,8 @@ export class ConfigurationIndexManager {
                 
                 this.addPropertyLocation(item.key, location);
             }
+            
+            this.logger.info('文件扫描完成', { filePath, propertiesCount: configItems.length });
         } catch (error) {
             this.logger.error(`扫描文件 ${filePath} 时出错`, error);
         }

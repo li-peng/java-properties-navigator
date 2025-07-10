@@ -139,6 +139,32 @@ For complex projects with multiple modules:
 }
 ```
 
+### Advanced Configuration Examples
+
+#### Using Absolute Paths
+```json
+{
+  "java-properties-navigator.scanDirectories": [
+    "src/main/resources",
+    "D:/myworkspace/demo/src/main/resources",
+    "/home/user/projects/config",
+    "**/src/main/resources"
+  ]
+}
+```
+
+#### Mixed Path Configuration
+```json
+{
+  "java-properties-navigator.scanDirectories": [
+    "src/main/resources",
+    "config/**",
+    "C:/SharedConfig/properties",
+    "**/src/main/resources"
+  ]
+}
+```
+
 ## 🎮 Commands
 
 | Command | Description | Shortcut |
